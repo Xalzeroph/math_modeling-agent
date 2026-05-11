@@ -157,38 +157,27 @@ def search_papers(root: Path, terms: List[str]) -> List[dict]:
 
 
 def search_evolution(root: Path, terms: List[str]) -> List[dict]:
-    """从 memory/ 角色目录中检索进化经验"""
+    """从 sessions/*/eval_report.json 中检索历史经验"""
     results = []
-    for role in ["modeler", "coder", "writer"]:
-        mem_dir = root / "memory" / role
-        if not mem_dir.exists():
+    sessions_dir = root / "sessions"
+    if not sessions_dir.exists():
+        return results
+    for d in sorted(sessions_dir.iterdir()):
+        if not d.is_dir():
             continue
-        for jf in sorted(mem_dir.glob("*.json")):
-            try:
-                data = json.loads(jf.read_text(encoding="utf-8"))
-            except:
-                continue
-            # strategies/qa pattern 格式
-            if isinstance(data, dict):
-                for key, v in data.items():
-                    if not isinstance(v, dict):
-                        continue
-                    searchable = json.dumps(v, default=str).lower()
-                    score = sum(1 for t in terms if t.lower() in searchable)
-                    if score > 0:
-                        v["score"] = score
-                        v["role"] = role
-                        v["file"] = jf.name
-                        results.append(v)
-            elif isinstance(data, list):
-                for item in data:
-                    if isinstance(item, dict):
-                        searchable = json.dumps(item, default=str).lower()
-                        score = sum(1 for t in terms if t.lower() in searchable)
-                        if score > 0:
-                            item["score"] = score
-                            item["role"] = role
-                            results.append(item)
+        ef = d / "eval_report.json"
+        if not ef.exists():
+            continue
+        try:
+            data = json.loads(ef.read_text(encoding="utf-8"))
+        except:
+            continue
+        searchable = json.dumps(data, default=str).lower()
+        score = sum(1 for t in terms if t.lower() in searchable)
+        if score > 0:
+            data["session"] = d.name
+            data["score"] = score
+            results.append(data)
 
     results.sort(key=lambda r: r["score"], reverse=True)
     return results[:10]

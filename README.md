@@ -43,8 +43,7 @@
 │   └── papers/            # 1489篇论文，按6大类组织：优化类/评价类/预测类/统计类/图论网络类/仿真综合类
 ├── rules/                 # 39条反模式
 ├── templates/             # LaTeX 模板
-├── tools/                 # 13 个 CLI 工具
-├── models/cases/          # 案例沉淀
+├── tools/                 # 8 个 CLI 工具
 └── sessions/              # 每次建模的完整归档
 ```
 
