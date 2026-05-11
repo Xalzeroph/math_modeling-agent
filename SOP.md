@@ -45,6 +45,9 @@
 
 ### 阶段 1：问题分析
 
+Session 目录已在开始建模时一次性创建完成：
+`sessions/题目名称/{data,notes,solvers,verifications,figures,paper}`
+
 读取 `roles/建模手.md`，切换为建模手身份。
 
 **必须做的事**：

@@ -33,12 +33,15 @@ tags: [math, modeling, cumcm, mcm, self-evolving, python]
 用户只需做一件事：
 1. 告诉你题目名称，把题目 PDF 和数据文件给你
 
-然后你（Claude Code）做的事：
+然后你（Claude Code）做的第一件事——创建完整的 session 目录结构：
 ```bash
-mkdir -p sessions/题目名称/data
-# 把用户给的文件放进去
+mkdir -p sessions/题目名称/{data,notes,solvers,verifications,figures,paper}
+# 把用户给的 PDF 和数据文件放进 sessions/题目名称/data/
 ```
-之后的 `notes/`、`solvers/`、`figures/`、`paper/` 等目录在对应阶段自动创建。
+
+之后阶段的产出：
+  `notes/题目分析.md` → `solvers/problem{n}.py` → `verifications/verify{n}.py`
+  → `figures/` → `paper/main.tex` → `paper/main.pdf` → `提交.zip`
 
 题型由建模手分析后跟用户确认，一切在对话中决定。
 
