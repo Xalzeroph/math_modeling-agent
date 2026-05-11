@@ -86,10 +86,10 @@
 **这是硬门禁 — 不通过不许进论文。**
 
 1. 每个 `solvers/problem{n}.py` 写对应的 `verifications/verify_problem{n}.py`
-2. 用 `python tools/model_verifier.py verify --script verifications/verify_X.py` 运行
-3. 根据模型类型选择验证方式（参考 SOP 第4.3节的验证模板）
+2. 直接运行验证脚本：`python verifications/verify_problem{n}.py`
+3. 根据模型类型写验证代码（参考下方验证标准表格）
 4. 全部 PASS 才算通过。FAIL 就回到阶段 3 修复
-5. 模型验证需要确保数据准确性：原始数据 → 代码 → 论文三者完全一致
+5. 确保数据准确性：原始数据 → 代码 → 论文三者完全一致
 
 **跟用户讨论**：验证结果是否合理？指标是否足够？
 

@@ -115,8 +115,8 @@
 **修复**: 每个 solver 必须有对应 verify
 
 ### E2 🔴 — 验证未实际执行
-**症状**: verify 文件存在但从未用 `model_verifier.py verify` 运行  
-**修复**: `python tools/model_verifier.py verify --script verifications/verify_X.py`
+**症状**: verify 文件存在但从未运行  
+**修复**: 直接运行 `python verifications/verify_X.py`，检查输出是否全部 PASS
 
 ### E3 🟡 — 残差分析缺失(回归)
 **症状**: 只报R²，无Shapiro-Wilk/Breusch-Pagan/DW  

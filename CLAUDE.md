@@ -38,19 +38,17 @@ tags: [math, modeling, cumcm, mcm, self-evolving, python]
 
 ---
 
-## 7 个工具
+## 5 个工具
 
-这些工具是 Claude Code 做不到或做不好的事，需要时直接调用：
+这些都是 Claude Code 自己做不了的事，需要时直接调用：
 
 | 工具 | 干什么 | 什么时候用 |
 |------|--------|----------|
 | `compile_latex.py` | LaTeX编译（xelatex/pdflatex 多pass） | 论文阶段 |
-| `scorer.py` | 基于经验基线的百分位评分 | 写论文时自检 |
+| `scorer.py` | 形式检查 + 百分位对比评分 | 写论文时自检 |
 | `paper_search.py` | arXiv/OpenAlex/Semantic Scholar 多源搜索 | 建模手找文献时 |
 | `evolver.py` | 记录经验到role文档、更新策略/QA/代码模板 | 做完题后进化 |
 | `pdf_extractor.py` | 提取PDF文本和表格 | 题目是PDF或需要提取论文表格时 |
-| `model_verifier.py` | 标准化验证脚本模板和报告解析 | 写验证代码时 |
-| `compute_baselines.py` | 从论文元数据重算评分基线 | 论文库更新后（很少用） |
 
 ## 可用的知识资产
 
