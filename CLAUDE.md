@@ -38,25 +38,19 @@ tags: [math, modeling, cumcm, mcm, self-evolving, python]
 
 ---
 
-## 13 个工具
+## 7 个工具
 
-这些工具是你干活时的帮手，需要时直接调用：
+这些工具是 Claude Code 做不到或做不好的事，需要时直接调用：
 
 | 工具 | 干什么 | 什么时候用 |
 |------|--------|----------|
-| `workspace_setup.py` | 创建题目文件夹 | 开始做新题时 |
-| `algo_query.py` | 查算法库推荐 / MATLAB→Python映射 | 建模手选模型时 |
-| `evolver.py` | 查历史经验/进化/盲区/蒸馏 | 开始前查经验，做完后进化 |
-| `knowledge_retriever.py` | 搜本地知识库 | 建模手分析时 |
-| `paper_search.py` | 现场搜 arXiv/OpenAlex 论文 | 建模手找文献时 |
-| `paper_learn.py` | 从论文库中按题型自动匹配范文学习写作 | 每次建模时读一篇范文 |
-| `pdf_extractor.py` | 读PDF题目/论文 | 题目是PDF时 |
-| `auto_fix.py` | 代码自动修复(4轮) | 代码报错时 |
-| `model_verifier.py` | 运行验证脚本 | 写验证和检查时 |
-| `compile_latex.py` | LaTeX编译 | 论文阶段 |
-| `scorer.py` | 91篇论文基线评分(3速度模式) | 写论文时自检 |
-| `search_index.py` | 建/查本地索引 | 首次用或查论文时 |
-| `extract_o_features.py` | O奖论文特征 | 参考基线时 |
+| `compile_latex.py` | LaTeX编译（xelatex/pdflatex 多pass） | 论文阶段 |
+| `scorer.py` | 基于经验基线的百分位评分 | 写论文时自检 |
+| `paper_search.py` | arXiv/OpenAlex/Semantic Scholar 多源搜索 | 建模手找文献时 |
+| `evolver.py` | 记录经验到role文档、更新策略/QA/代码模板 | 做完题后进化 |
+| `pdf_extractor.py` | 提取PDF文本和表格 | 题目是PDF或需要提取论文表格时 |
+| `model_verifier.py` | 标准化验证脚本模板和报告解析 | 写验证代码时 |
+| `compute_baselines.py` | 从论文元数据重算评分基线 | 论文库更新后（很少用） |
 
 ## 可用的知识资产
 
@@ -99,12 +93,6 @@ python tools/evolver.py summary   # 进化摘要
 
 ## 建模阶段 — 论文学习
 
-每次建模的问题分析阶段，`paper_learn.py` 会自动从 1489 篇论文库中按题型匹配一篇范文。Claude Code 读完 PDF 后提取写作规律存储：
+每次建模时，Claude Code 直接从 `references/papers/` 目录中按题型子目录找范文。例如做评价类问题时，读 `references/papers/评价类/层次分析法/` 下的论文学习写作规律，沉淀到 `roles/论文手.md` 进化区。
 
-```bash
-python tools/paper_learn.py list                                    # 列出所有论文及题型
-python tools/paper_learn.py suggest --problem-type optimization     # 推荐下一篇该读的
-python tools/paper_learn.py learn --paper "xxx" --session "xxx" --extraction "..."
-```
-
-学完的写作规律自动沉淀到 `roles/论文手.md` 的进化区。1489 篇论文学完，论文手积累 1489 条写作技巧。
+论文目录结构: 6大类 → 28子类 → PDF文件，目录名即题型。
