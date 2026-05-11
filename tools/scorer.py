@@ -300,7 +300,7 @@ def score_session(root: Path, session_name: str, mode: str = "standard",
         "details": details,
         "layers": layer_summary,
         "improvements": improvements,
-        "baseline_source": "91篇CUMCM获奖论文(2023-2025) + 38篇MCM/ICM O奖论文",
+        "baseline_source": "91篇CUMCM获奖论文(2023-2025) + MCM/ICM O奖论文",
     }
 
 

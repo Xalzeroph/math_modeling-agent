@@ -59,7 +59,7 @@ print("VERIFICATION REPORT")
 print("=" * 60)
 all_pass = True
 for check_id, result, detail in checks:
-    status = "\\u2713 PASS" if result else "\\u2717 FAIL"
+    status = "\u2713 PASS" if result else "\u2717 FAIL"
     print(f"  [{check_id}] {status}  {detail}")
     if not result:
         all_pass = False
@@ -90,7 +90,7 @@ print("VERIFICATION REPORT")
 print("=" * 60)
 all_pass = True
 for check_id, result, detail in checks:
-    status = "\\u2713 PASS" if result else "\\u2717 FAIL"
+    status = "\u2713 PASS" if result else "\u2717 FAIL"
     print(f"  [{check_id}] {status}  {detail}")
     if not result:
         all_pass = False
@@ -118,7 +118,7 @@ print("VERIFICATION REPORT")
 print("=" * 60)
 all_pass = True
 for check_id, result, detail in checks:
-    status = "\\u2713 PASS" if result else "\\u2717 FAIL"
+    status = "\u2713 PASS" if result else "\u2717 FAIL"
     print(f"  [{check_id}] {status}  {detail}")
     if not result:
         all_pass = False

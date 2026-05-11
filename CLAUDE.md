@@ -64,9 +64,9 @@ tags: [math, modeling, cumcm, mcm, self-evolving, python]
 
 | 资产 | 位置 | 内容 |
 |------|------|------|
-| 算法库 | `algorithms/index.json` + `algorithms/*.md` + `code_index.json` | 9领域/30+子领域/74方法 + MATLAB→Python映射 |
+| 算法库 | `algorithms/index.json` + `algorithms/*.md` + `code_index.json` | 9领域/27子领域/74方法 + MATLAB→Python映射 |
 | 论文库 | `references/papers/` | **1489篇PDF**，按6大类28子类组织 |
-| 评分基线 | `references/empirical_baselines.json` | 91篇CUMCM论文的11维经验分布 |
+| 评分基线 | `references/empirical_baselines.json` | 91篇CUMCM论文的10维经验分布 |
 | 反模式库 | `rules/antipatterns.md` | 39条常见错误，按严重度分级 |
 | 进化经验 | `memory/evolution/` | 历史策略和代码模板 |
 | LaTeX模板 | `templates/` | 国赛/美赛论文模板 |

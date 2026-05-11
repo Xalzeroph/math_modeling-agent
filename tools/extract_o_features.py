@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""O奖论文特征提取 — 从 38 篇 PDF 中统计论文特征
+"""O奖论文特征提取 — 从论文 PDF 中统计论文特征
 
 提取：摘要长度、章节数、图数量、公式数量、引用数、页数
 输出到 references/paper_features.json
@@ -98,14 +98,14 @@ def analyze_pdfs(root: Path) -> dict:
         "total": len(papers),
         "categories": categories,
         "papers": papers,
-        "note": "PDF 内容特征提取需 pdfplumber。当前统计基于文件名和目录结构。",
+        "note": "PDF 内容特征提取需 pdfplumber。当前统计基于文件名和目录结构（6大类28子类）。",
     }
 
 
 def print_baselines():
     """打印 O奖论文统计基线"""
     lines = [
-        "O奖论文特征基线 (基于 38 篇 MCM/ICM O奖论文统计):",
+        "O奖论文特征基线 (基于历年 MCM/ICM O奖论文统计):",
         "",
         "| 维度 | 最小值 | 中位数 | 最大值 | 说明 |",
         "|------|--------|--------|--------|------|",

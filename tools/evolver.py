@@ -507,7 +507,7 @@ def _detect_gaps(qa_db, root):
         for dk, domain in index.get("domains", {}).items():
             for sk, sub in domain.get("subdomains", {}).items():
                 for m in sub.get("methods", []):
-                    if not m.get("evolved_status") and m.get("id", "") not in str(qa_db):
+                    if not m.get("evolved_status") and m.get("id", "") not in qa_db:
                         unverified.append({
                             "id": m["id"], "name": m["name"],
                             "domain": domain["name"], "package": m["package"],
