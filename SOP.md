@@ -48,7 +48,7 @@
 1. 读题目 — 从 PDF 提取文本，或从用户提供的描述中提取
 2. 查数据 — 检查 `data/` 里的文件，分析结构
 3. 判题型 — 优化/预测/评价/分类/ODE/图论/混合
-4. 查资产 — 用 `algo_query.py` 查推荐算法，用 `knowledge_retriever.py` 搜知识库，用 `evolver.py suggest` 查历史经验，用 `paper_search.py` 搜论文
+4. 查资产 — 读 `algorithms/index.json` 找匹配算法，读 `algorithms/*.md` 看详细文档，用 `evolver.py suggest --problem-type <题型>` 查历史经验，用 `paper_search.py` 搜论文
 5. 选模型 — 遵守模型选择三原则：能用简单就不用复杂
 6. 设计算法 — 写清楚求解步骤、流程图、关键参数
 7. 建术语表 — 统一定义全文术语和符号
@@ -76,7 +76,7 @@
 1. 读 `notes/题目分析.md`，按建模手设计的算法写代码
 2. 每个子问题写 `solvers/problem{n}_{type}.py`
 3. **写完必须运行**，报错就修
-4. 代码报错用 `python tools/auto_fix.py --script solvers/xxx.py` 自动修复
+4. 代码报错直接分析错误信息并修复代码（Claude Code 原生能力）
 5. **禁止创建简化版/备选版代码**，直接在原文件里改
 
 **跟用户讨论**：实现遇到什么困难？代码逻辑有没有问题？

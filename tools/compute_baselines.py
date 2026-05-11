@@ -45,7 +45,7 @@ def compute_baselines(root: Path) -> dict:
         "source": "papers_metadata.json",
         "confidence": "medium",
         "note": "基于目录结构和文件名的元数据统计。特征值（页数/图表/公式）来自现有基线或外推。"
-              "要获得高置信度统计，请先运行 extract_o_features.py 批量提取PDF特征。",
+              "要获得高置信度统计，需要用 pdfplumber 从实际 PDF 中提取特征后更新此文件。",
         "samples": {
             "total_indexed": stats.get("total", 0),
             "with_contest": len(by_contest.get("MCM/ICM", [])) + len(by_contest.get("CUMCM", [])),

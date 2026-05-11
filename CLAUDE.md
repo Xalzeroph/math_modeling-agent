@@ -31,8 +31,8 @@ tags: [math, modeling, cumcm, mcm, self-evolving, python]
 ## 开始建模
 
 用户只需做两件事：
-1. `python tools/workspace_setup.py "题目名称"` — 创建题目文件夹
-2. 把题目 PDF 和 Excel 数据放进 `sessions/题目名称/data/` 里
+1. 把题目 PDF 和数据文件放到 `sessions/题目名称/` 下
+2. 对 Claude Code 说"帮我做这道题"
 
 然后对 Claude Code 说"帮我做这道题"。题型由建模手分析后跟你确认，一切在对话中决定。
 
