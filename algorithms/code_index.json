@@ -1,0 +1,624 @@
+{
+  "AHP层次分析法": {
+    "original_name": "AHP层次分析法",
+    "sub_algos": [],
+    "key_functions": [
+      "ahp",
+      "rand → numpy.random",
+      "ri",
+      "sglsortexamine",
+      "tw"
+    ],
+    "m_files": 8
+  },
+  "CellularAutomata元胞向量机": {
+    "original_name": "CellularAutomata元胞向量机",
+    "sub_algos": [],
+    "key_functions": [
+      "cluster → sklearn.cluster",
+      "ga → deap / scipy.optimize.differential_evolution",
+      "rand → numpy.random"
+    ],
+    "m_files": 11
+  },
+  "FuzzyMathematicalModel模糊数学模型": {
+    "original_name": "FuzzyMathematicalModel模糊数学模型",
+    "sub_algos": [
+      {
+        "name": "多目标模糊综合评价",
+        "functions": [
+          "f"
+        ]
+      },
+      {
+        "name": "模糊聚类",
+        "functions": [
+          "N1",
+          "ab",
+          "err",
+          "f1",
+          "f2"
+        ]
+      }
+    ],
+    "key_functions": [
+      "N1",
+      "ab",
+      "cluster → sklearn.cluster",
+      "err",
+      "f",
+      "f1",
+      "f2"
+    ],
+    "m_files": 11
+  },
+  "GoalProgramming": {
+    "original_name": "GoalProgramming(目标规划、多元分析与插值的相关例子)",
+    "sub_algos": [],
+    "key_functions": [
+      "F",
+      "linprog → scipy.optimize.linprog",
+      "rand → numpy.random"
+    ],
+    "m_files": 3
+  },
+  "GraphTheory": {
+    "original_name": "GraphTheory(图论)",
+    "sub_algos": [
+      {
+        "name": "basic",
+        "functions": [
+          "BG",
+          "CBG",
+          "CoCycles",
+          "CreateArrow",
+          "Cycles",
+          "FPRINTF",
+          "for",
+          "grDecOrd"
+        ]
+      }
+    ],
+    "key_functions": [
+      "BFS",
+      "BG",
+      "BGf",
+      "CBG",
+      "CoCycles",
+      "CreateArrow",
+      "Cycles",
+      "D",
+      "DFS",
+      "Dijkf",
+      "FPRINTF",
+      "Fleuf1",
+      "Floyd",
+      "Huffman",
+      "b"
+    ],
+    "m_files": 61
+  },
+  "GreySystem灰色系统": {
+    "original_name": "GreySystem灰色系统",
+    "sub_algos": [],
+    "key_functions": [],
+    "m_files": 7
+  },
+  "HeuristicAlgorithm": {
+    "original_name": "HeuristicAlgorithm（补分启发式算法，包括神经网络、模拟退火、遗传算法）",
+    "sub_algos": [],
+    "key_functions": [
+      "E",
+      "FIG_D",
+      "Fitness",
+      "J",
+      "SVMcgForClass",
+      "SVMcgForRegress",
+      "Val",
+      "chapter13_GA",
+      "chapter13_GridSearch",
+      "chapter13_PSO",
+      "chapter14",
+      "chapter15",
+      "children",
+      "d",
+      "dis"
+    ],
+    "m_files": 117
+  },
+  "IntegerProgramming": {
+    "original_name": "IntegerProgramming（线性规划、整数规划等内容的使用案例）",
+    "sub_algos": [],
+    "key_functions": [
+      "example_1",
+      "intlinprog → pulp / scipy.optimize.milp",
+      "linprog → scipy.optimize.linprog",
+      "rand → numpy.random"
+    ],
+    "m_files": 3
+  },
+  "Interpolation": {
+    "original_name": "Interpolation（目标规划、多元分析与插值的相关例子）",
+    "sub_algos": [],
+    "key_functions": [
+      "interp1 → scipy.interpolate.interp1d",
+      "interp2 → scipy.interpolate.interp2d",
+      "spline → scipy.interpolate"
+    ],
+    "m_files": 4
+  },
+  "LinearProgramming": {
+    "original_name": "LinearProgramming（添加了线性规划、整数规划等内容的使用案例）",
+    "sub_algos": [],
+    "key_functions": [
+      "linprog → scipy.optimize.linprog"
+    ],
+    "m_files": 2
+  },
+  "MATLAB智能算法30个案例分析": {
+    "original_name": "MATLAB智能算法30个案例分析",
+    "sub_algos": [
+      {
+        "name": "chapter11 基于多层编码遗传算法的车间调度算法",
+        "functions": [
+          "ChromNew",
+          "NewChrom",
+          "P",
+          "PVal",
+          "PlotRec",
+          "Pos",
+          "SelS",
+          "cal"
+        ]
+      },
+      {
+        "name": "chapter12 免疫优化算法在物流配送中心选址中的应用",
+        "functions": [
+          "concentration",
+          "exc",
+          "fit",
+          "flag",
+          "newindividuals",
+          "pop",
+          "resemble",
+          "ret"
+        ]
+      },
+      {
+        "name": "chapter15 基于混合粒子群算法的TSP搜索算法",
+        "functions": [
+          "dist",
+          "indiFit"
+        ]
+      },
+      {
+        "name": "chapter16 基于动态粒子群算法的动态环境寻优算法",
+        "functions": [
+          "ff"
+        ]
+      },
+      {
+        "name": "chapter19 基于模拟退火算法的TSP算法",
+        "functions": [
+          "D",
+          "DrawPath",
+          "Metropolis",
+          "S2",
+          "len",
+          "p",
+          "varargout"
+        ]
+      },
+      {
+        "name": "chapter20 基于遗传模拟退火算法的聚类算法",
+        "functions": [
+          "FCMfun",
+          "GAFCM",
+          "ObjFun",
+          "U",
+          "iterateFCM"
+        ]
+      },
+      {
+        "name": "chapter21 模拟退火算法工具箱及应用",
+        "functions": [
+          "X0",
+          "y"
+        ]
+      },
+      {
+        "name": "chapter23 基于蚁群算法的二维路径规划算法",
+        "functions": [
+          "path"
+        ]
+      },
+      {
+        "name": "chapter24 基于蚁群算法的三维路径规划算法",
+        "functions": [
+          "fitness",
+          "qfz",
+          "searchpath"
+        ]
+      },
+      {
+        "name": "chapter3 基于遗传算法的BP神经网络优化算法",
+        "functions": [
+          "err"
+        ]
+      }
+    ],
+    "key_functions": [
+      "AF_follow",
+      "AF_foodconsistence",
+      "AF_prey",
+      "AF_swarm",
+      "Chrom",
+      "ChromNew",
+      "D",
+      "DeJong_f2",
+      "DeJong_f3",
+      "DeJong_f4",
+      "DrawPath",
+      "EliteInduvidual",
+      "FCMfun",
+      "FitnV",
+      "FitnessFunction"
+    ],
+    "m_files": 215
+  },
+  "MultivariateAnalysis": {
+    "original_name": "MultivariateAnalysis（目标规划、多元分析与插值的相关例子）",
+    "sub_algos": [],
+    "key_functions": [
+      "cluster → sklearn.cluster",
+      "linkage → scipy.cluster.hierarchy",
+      "pca → sklearn.decomposition.PCA",
+      "regress → sklearn.linear_model.LinearRegression"
+    ],
+    "m_files": 4
+  },
+  "NeuralNetwork神经网络工具箱的调用案例": {
+    "original_name": "NeuralNetwork神经网络工具箱的调用案例",
+    "sub_algos": [],
+    "key_functions": [
+      "train → tensorflow.keras / sklearn"
+    ],
+    "m_files": 2
+  },
+  "NonLinearProgramming非线性规划": {
+    "original_name": "NonLinearProgramming非线性规划",
+    "sub_algos": [],
+    "key_functions": [
+      "f",
+      "fmincon → scipy.optimize.minimize",
+      "fun2",
+      "rand → numpy.random"
+    ],
+    "m_files": 3
+  },
+  "RegressionAnalysis回归分析": {
+    "original_name": "RegressionAnalysis回归分析",
+    "sub_algos": [],
+    "key_functions": [
+      "func",
+      "regress → sklearn.linear_model.LinearRegression",
+      "stepwise → sklearn.feature_selection / statsmodels"
+    ],
+    "m_files": 6
+  },
+  "TimeSeries时间序列函数": {
+    "original_name": "TimeSeries时间序列函数",
+    "sub_algos": [
+      {
+        "name": "趋势外推预测法",
+        "functions": [
+          "y"
+        ]
+      }
+    ],
+    "key_functions": [
+      "y"
+    ],
+    "m_files": 13
+  },
+  "《MATLAB 神经网络30个案例分析》源程序 数据": {
+    "original_name": "《MATLAB 神经网络30个案例分析》源程序 数据",
+    "sub_algos": [
+      {
+        "name": "chapter11",
+        "functions": [
+          "E",
+          "du"
+        ]
+      },
+      {
+        "name": "chapter13",
+        "functions": [
+          "SVMcgForClass",
+          "chapter13"
+        ]
+      },
+      {
+        "name": "chapter14",
+        "functions": [
+          "SVMcgForRegress",
+          "chapter14"
+        ]
+      },
+      {
+        "name": "chapter15",
+        "functions": [
+          "FIG_D",
+          "SVMcgForRegress",
+          "chapter15"
+        ]
+      },
+      {
+        "name": "chapter22",
+        "functions": [
+          "lvq1_train",
+          "lvq2_train",
+          "pixel_value",
+          "result"
+        ]
+      },
+      {
+        "name": "chapter23",
+        "functions": [
+          "y"
+        ]
+      },
+      {
+        "name": "chapter26",
+        "functions": [
+          "y"
+        ]
+      },
+      {
+        "name": "chapter27",
+        "functions": [
+          "Val",
+          "fitness"
+        ]
+      },
+      {
+        "name": "chapter3",
+        "functions": [
+          "error",
+          "flag",
+          "ret"
+        ]
+      },
+      {
+        "name": "chapter4",
+        "functions": [
+          "fitness",
+          "flag",
+          "ret"
+        ]
+      }
+    ],
+    "key_functions": [
+      "D",
+      "E",
+      "FIG_D",
+      "Fitness",
+      "J",
+      "SVMcgForClass",
+      "SVMcgForRegress",
+      "Used",
+      "Val",
+      "adjswapmutation",
+      "arithXover",
+      "at",
+      "b2f",
+      "based",
+      "binaryMutate"
+    ],
+    "m_files": 137
+  },
+  "《MATLAB图像处理》源文件": {
+    "original_name": "《MATLAB图像处理》源文件",
+    "sub_algos": [],
+    "key_functions": [
+      "B",
+      "B1",
+      "BW",
+      "C",
+      "Denoise",
+      "Gabor",
+      "J",
+      "Moment_Seven",
+      "OutImage",
+      "RLfilter",
+      "SEASON",
+      "Z",
+      "angles",
+      "assumes",
+      "binary"
+    ],
+    "m_files": 339
+  },
+  "《MATLAB神经网络原理与实例精解》随书附带源程序": {
+    "original_name": "《MATLAB神经网络原理与实例精解》随书附带源程序",
+    "sub_algos": [
+      {
+        "name": "第10章 随机神经网络",
+        "functions": [
+          "len",
+          "new_path",
+          "value",
+          "y"
+        ]
+      },
+      {
+        "name": "第7章 径向基函数网络",
+        "functions": [
+          "clas",
+          "y"
+        ]
+      },
+      {
+        "name": "第9章 反馈神经网络",
+        "functions": [
+          "C",
+          "c"
+        ]
+      }
+    ],
+    "key_functions": [
+      "C",
+      "I",
+      "P",
+      "b",
+      "c",
+      "clas",
+      "cluster → sklearn.cluster",
+      "divide",
+      "feedforwardnet → tensorflow.keras.Sequential",
+      "fft → numpy.fft / scipy.fft",
+      "ga → deap / scipy.optimize.differential_evolution",
+      "getFeature",
+      "getFeature1",
+      "getdata",
+      "interp2 → scipy.interpolate.interp2d"
+    ],
+    "m_files": 127
+  },
+  "《基于MATLAB的高等数学问题求解》 随书附带源程序": {
+    "original_name": "《基于MATLAB的高等数学问题求解》 随书附带源程序",
+    "sub_algos": [
+      {
+        "name": "CH02",
+        "functions": [
+          "C",
+          "S",
+          "hanoi",
+          "move",
+          "print_matrix",
+          "varargout"
+        ]
+      },
+      {
+        "name": "CH03",
+        "functions": [
+          "plotxy",
+          "varargout"
+        ]
+      },
+      {
+        "name": "CH05",
+        "functions": [
+          "S",
+          "c",
+          "varargout"
+        ]
+      },
+      {
+        "name": "CH06",
+        "functions": [
+          "BreakPoint",
+          "tf",
+          "varargout",
+          "xi",
+          "y"
+        ]
+      },
+      {
+        "name": "CH07",
+        "functions": [
+          "Concavity",
+          "Evolute_Draw",
+          "Extremum",
+          "K",
+          "Monotonicity",
+          "T",
+          "bisect",
+          "d"
+        ]
+      },
+      {
+        "name": "CH08",
+        "functions": [
+          "ComplexQuad",
+          "DrawSolid",
+          "I",
+          "L",
+          "S",
+          "V",
+          "arrow",
+          "arrow_callback"
+        ]
+      },
+      {
+        "name": "CH09",
+        "functions": [
+          "A",
+          "ConvergenceRadius",
+          "LimitSeries",
+          "PI",
+          "PositiveIermSeries",
+          "fseries",
+          "fseriesquadl",
+          "fseriessym"
+        ]
+      },
+      {
+        "name": "CH10",
+        "functions": [
+          "Equ_iter",
+          "Gauss",
+          "LU_Equ",
+          "LinearEqs",
+          "Newtons",
+          "varargout",
+          "x"
+        ]
+      },
+      {
+        "name": "CH11",
+        "functions": [
+          "C",
+          "CalArrow",
+          "D",
+          "S",
+          "h",
+          "rotation",
+          "surface_para",
+          "theta"
+        ]
+      },
+      {
+        "name": "CH12",
+        "functions": [
+          "C",
+          "Extremum2",
+          "Least_square",
+          "P",
+          "T",
+          "dfdl",
+          "n",
+          "varargout"
+        ]
+      }
+    ],
+    "key_functions": [
+      "A",
+      "BreakPoint",
+      "C",
+      "CalArrow",
+      "Classical_RK4",
+      "Classical_RK4s",
+      "ComplexQuad",
+      "Concavity",
+      "ConvergenceRadius",
+      "D",
+      "DrawSolid",
+      "Equ_iter",
+      "Evolute_Draw",
+      "Explicit_Euler",
+      "Extremum"
+    ],
+    "m_files": 123
+  }
+}

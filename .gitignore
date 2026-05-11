@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.venv/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+sessions/
+memory/evolution/
+*.exe
+*.zip
+*.tar.gz
+references/
+Python/

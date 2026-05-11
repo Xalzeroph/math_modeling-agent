@@ -1,0 +1,271 @@
+{
+  "version": "1.0",
+  "description": "三级算法知识库索引 — 题型→领域→子领域→方法节点。遵循 LLM-MM-Agent HMML 模式。",
+  "domains": {
+    "optimization": {
+      "name": "优化与规划",
+      "subdomains": {
+        "linear": {
+          "name": "线性规划",
+          "methods": [
+            {"id": "lp_simplex", "name": "单纯形法", "package": "scipy.optimize.linprog", "method": "simplex", "apply": ["资源分配", "生产计划", "运输问题"], "evolved_status": null},
+            {"id": "lp_interior", "name": "内点法", "package": "scipy.optimize.linprog", "method": "interior-point", "apply": ["大规模LP", "稀疏约束"], "evolved_status": null}
+          ]
+        },
+        "integer": {
+          "name": "整数/混合整数规划",
+          "methods": [
+            {"id": "milp_branch", "name": "分支定界法", "package": "pulp/mip", "apply": ["整数决策", "选址问题", "调度"], "evolved_status": null},
+            {"id": "milp_cutting", "name": "割平面法", "package": "gurobi/cplex", "apply": ["TSP", "VRP"], "evolved_status": null}
+          ]
+        },
+        "nonlinear": {
+          "name": "非线性规划",
+          "methods": [
+            {"id": "nlp_slsqp", "name": "SLSQP", "package": "scipy.optimize.minimize", "method": "SLSQP", "apply": ["带约束非线性"], "evolved_status": null},
+            {"id": "nlp_bfgs", "name": "BFGS/L-BFGS", "package": "scipy.optimize.minimize", "method": "L-BFGS-B", "apply": ["大规模无约束", "神经网络训练"], "evolved_status": null},
+            {"id": "nlp_trust", "name": "信赖域法", "package": "scipy.optimize.minimize", "method": "trust-constr", "apply": ["病态问题", "高精度需求"], "evolved_status": null}
+          ]
+        },
+        "metaheuristic": {
+          "name": "元启发式算法",
+          "methods": [
+            {"id": "ga", "name": "遗传算法(GA)", "package": "deap/scipy.optimize.differential_evolution", "apply": ["组合优化", "多峰函数"], "params": {"pop_size": [50, 200], "generations": [100, 500]}, "evolved_status": null},
+            {"id": "pso", "name": "粒子群(PSO)", "package": "pyswarms", "apply": ["连续优化", "参数调优"], "params": {"swarm_size": [30, 100], "w": [0.4, 0.9]}, "evolved_status": null},
+            {"id": "sa", "name": "模拟退火(SA)", "package": "scipy.optimize.dual_annealing", "apply": ["全局优化", "组合优化"], "params": {"T0": [1000, 10000], "cooling": [0.85, 0.99]}, "evolved_status": null},
+            {"id": "aco", "name": "蚁群算法(ACO)", "package": "custom", "apply": ["路径规划", "TSP"], "params": {"ants": [20, 100], "evaporation": [0.1, 0.5]}, "evolved_status": null},
+            {"id": "de", "name": "差分进化(DE)", "package": "scipy.optimize.differential_evolution", "apply": ["黑箱优化", "高维连续"], "params": {"popsize": [15, 50]}, "evolved_status": null}
+          ]
+        },
+        "multiobj": {
+          "name": "多目标优化",
+          "methods": [
+            {"id": "nsga2", "name": "NSGA-II", "package": "pymoo/deap", "apply": ["多目标Pareto", "工程设计"], "evolved_status": null},
+            {"id": "weighted_sum", "name": "加权和法", "package": "scipy.optimize", "apply": ["目标可加权合并"], "evolved_status": null}
+          ]
+        }
+      }
+    },
+    "regression": {
+      "name": "回归与拟合",
+      "subdomains": {
+        "linear_reg": {
+          "name": "线性回归",
+          "methods": [
+            {"id": "ols", "name": "普通最小二乘(OLS)", "package": "sklearn.linear_model.LinearRegression", "apply": ["线性关系", "基准模型"], "evolved_status": null},
+            {"id": "ridge", "name": "岭回归(Ridge)", "package": "sklearn.linear_model.Ridge", "apply": ["多重共线性", "高维数据"], "params": {"alpha": [0.01, 10]}, "evolved_status": null},
+            {"id": "lasso", "name": "LASSO", "package": "sklearn.linear_model.Lasso", "apply": ["特征选择", "稀疏解"], "evolved_status": null},
+            {"id": "elasticnet", "name": "弹性网(ElasticNet)", "package": "sklearn.linear_model.ElasticNet", "apply": ["混合L1/L2正则"], "evolved_status": null}
+          ]
+        },
+        "nonlinear_reg": {
+          "name": "非线性回归",
+          "methods": [
+            {"id": "curve_fit", "name": "曲线拟合", "package": "scipy.optimize.curve_fit", "apply": ["物理模型拟合", "已知函数形式"], "evolved_status": "verified 2026-05-10"},
+            {"id": "polynomial", "name": "多项式回归", "package": "sklearn.preprocessing.PolynomialFeatures", "apply": ["平滑非线性", "趋势分析"], "evolved_status": null},
+            {"id": "spline", "name": "样条回归", "package": "scipy.interpolate.UnivariateSpline", "apply": ["数据插值", "平滑拟合"], "evolved_status": null},
+            {"id": "power_law", "name": "幂律回归", "package": "scipy.optimize.curve_fit", "apply": ["物理定律建模", "标度关系", "电磁力建模"], "evolved_status": "verified 2026-05-10"}
+          ]
+        },
+        "robust": {
+          "name": "稳健回归",
+          "methods": [
+            {"id": "huber", "name": "Huber回归", "package": "sklearn.linear_model.HuberRegressor", "apply": ["有离群点数据"], "evolved_status": null},
+            {"id": "ransac", "name": "RANSAC", "package": "sklearn.linear_model.RANSACRegressor", "apply": ["大量离群点"], "evolved_status": null}
+          ]
+        }
+      }
+    },
+    "prediction": {
+      "name": "预测与时间序列",
+      "subdomains": {
+        "classical": {
+          "name": "经典时序模型",
+          "methods": [
+            {"id": "arima", "name": "ARIMA", "package": "statsmodels.tsa.arima.model", "apply": ["平稳时序", "短期预测"], "params": {"p": [0, 5], "d": [0, 2], "q": [0, 5]}, "evolved_status": null},
+            {"id": "sarima", "name": "SARIMA(季节性)", "package": "statsmodels.tsa.statespace.sarimax", "apply": ["有季节性的时序"], "evolved_status": null},
+            {"id": "exp_smooth", "name": "指数平滑法", "package": "statsmodels.tsa.holtwinters", "apply": ["带趋势+季节的时序"], "evolved_status": null},
+            {"id": "grey_gm", "name": "灰色预测 GM(1,1)", "package": "custom", "apply": ["小样本(<30)", "贫信息"], "params": {"min_samples": 4}, "evolved_status": null}
+          ]
+        },
+        "ml_ts": {
+          "name": "机器学习预测",
+          "methods": [
+            {"id": "xgboost", "name": "XGBoost", "package": "xgboost.XGBRegressor", "apply": ["表格数据", "特征工程丰富"], "evolved_status": null},
+            {"id": "lightgbm", "name": "LightGBM", "package": "lightgbm.LGBMRegressor", "apply": ["大规模数据", "类别特征多"], "evolved_status": null},
+            {"id": "rf_reg", "name": "随机森林回归", "package": "sklearn.ensemble.RandomForestRegressor", "apply": ["非线性关系", "特征重要性分析"], "evolved_status": null}
+          ]
+        },
+        "deep": {
+          "name": "深度学习预测",
+          "methods": [
+            {"id": "lstm", "name": "LSTM", "package": "tensorflow.keras.layers.LSTM", "apply": ["长序列", "复杂时序模式", "> 1000样本"], "evolved_status": null},
+            {"id": "prophet", "name": "Prophet", "package": "prophet.Prophet", "apply": ["业务预测", "节假日效应"], "evolved_status": null}
+          ]
+        }
+      }
+    },
+    "evaluation": {
+      "name": "评价与决策",
+      "subdomains": {
+        "weighting": {
+          "name": "赋权方法",
+          "methods": [
+            {"id": "ahp", "name": "层次分析法(AHP)", "package": "custom/pyanp", "apply": ["专家打分", "多层指标"], "evolved_status": null},
+            {"id": "entropy", "name": "熵权法", "package": "custom", "apply": ["客观赋权", "数据驱动"], "evolved_status": null},
+            {"id": "critic", "name": "CRITIC法", "package": "custom", "apply": ["考虑指标冲突性"], "evolved_status": null}
+          ]
+        },
+        "ranking": {
+          "name": "排序方法",
+          "methods": [
+            {"id": "topsis", "name": "TOPSIS", "package": "custom", "apply": ["多方案排序", "正负理想解"], "evolved_status": null},
+            {"id": "grey_relational", "name": "灰色关联分析", "package": "custom", "apply": ["小样本评价", "不完全信息"], "evolved_status": null},
+            {"id": "vikor", "name": "VIKOR", "package": "custom", "apply": ["折衷排序", "冲突准则"], "evolved_status": null}
+          ]
+        },
+        "efficiency": {
+          "name": "效率评价",
+          "methods": [
+            {"id": "dea", "name": "数据包络分析(DEA)", "package": "pyDEA", "apply": ["投入产出效率", "多DMU"], "evolved_status": null},
+            {"id": "sfa", "name": "随机前沿分析(SFA)", "package": "custom", "apply": ["参数化效率评估"], "evolved_status": null}
+          ]
+        }
+      }
+    },
+    "classification": {
+      "name": "分类与识别",
+      "subdomains": {
+        "classic": {
+          "name": "经典分类器",
+          "methods": [
+            {"id": "logistic", "name": "逻辑回归", "package": "sklearn.linear_model.LogisticRegression", "apply": ["二分类", "概率输出"], "evolved_status": null},
+            {"id": "svm", "name": "支持向量机(SVM)", "package": "sklearn.svm.SVC", "apply": ["高维小样本", "非线性核"], "evolved_status": null},
+            {"id": "knn", "name": "K近邻(KNN)", "package": "sklearn.neighbors.KNeighborsClassifier", "apply": ["简单分类", "小数据集"], "evolved_status": null}
+          ]
+        },
+        "ensemble": {
+          "name": "集成分类器",
+          "methods": [
+            {"id": "rf_clf", "name": "随机森林", "package": "sklearn.ensemble.RandomForestClassifier", "apply": ["特征重要性", "抗过拟合"], "evolved_status": null},
+            {"id": "xgb_clf", "name": "XGBoost分类", "package": "xgboost.XGBClassifier", "apply": ["结构化数据", "竞赛常用"], "evolved_status": null},
+            {"id": "adaboost", "name": "AdaBoost", "package": "sklearn.ensemble.AdaBoostClassifier", "apply": ["弱分类器增强"], "evolved_status": null}
+          ]
+        },
+        "anomaly": {
+          "name": "异常检测",
+          "methods": [
+            {"id": "isolation_forest", "name": "孤立森林", "package": "sklearn.ensemble.IsolationForest", "apply": ["异常值检测", "故障检测"], "evolved_status": null},
+            {"id": "one_class_svm", "name": "单类SVM", "package": "sklearn.svm.OneClassSVM", "apply": ["新颖性检测"], "evolved_status": null}
+          ]
+        }
+      }
+    },
+    "ode": {
+      "name": "微分方程与动力学",
+      "subdomains": {
+        "ivp": {
+          "name": "初值问题",
+          "methods": [
+            {"id": "solve_ivp_rk45", "name": "RK45(龙格库塔)", "package": "scipy.integrate.solve_ivp", "method": "RK45", "apply": ["常微分方程", "非刚性"], "evolved_status": null},
+            {"id": "solve_ivp_bdf", "name": "BDF(刚性)", "package": "scipy.integrate.solve_ivp", "method": "BDF", "apply": ["刚性ODE"], "evolved_status": null}
+          ]
+        },
+        "analysis": {
+          "name": "动力学分析",
+          "methods": [
+            {"id": "phase_portrait", "name": "相图分析", "package": "custom/matplotlib", "apply": ["稳定性分析", "周期解"], "evolved_status": null},
+            {"id": "bifurcation", "name": "分岔分析", "package": "custom", "apply": ["参数敏感性", "临界点"], "evolved_status": null}
+          ]
+        }
+      }
+    },
+    "network": {
+      "name": "图论与网络",
+      "subdomains": {
+        "path": {
+          "name": "路径优化",
+          "methods": [
+            {"id": "dijkstra", "name": "Dijkstra算法", "package": "networkx.algorithms.shortest_paths", "apply": ["非负权最短路径"], "evolved_status": null},
+            {"id": "floyd", "name": "Floyd-Warshall", "package": "scipy.sparse.csgraph.floyd_warshall", "apply": ["全源最短路径", "小图"], "evolved_status": null},
+            {"id": "astar", "name": "A*算法", "package": "networkx.algorithms.shortest_paths.astar", "apply": ["启发式搜索", "栅格地图"], "evolved_status": null}
+          ]
+        },
+        "flow": {
+          "name": "网络流",
+          "methods": [
+            {"id": "max_flow", "name": "最大流", "package": "networkx.algorithms.flow", "apply": ["物流网络", "容量约束"], "evolved_status": null},
+            {"id": "min_cost_flow", "name": "最小费用流", "package": "networkx.algorithms.flow", "apply": ["带费用网络优化"], "evolved_status": null}
+          ]
+        },
+        "mst": {
+          "name": "生成树与匹配",
+          "methods": [
+            {"id": "prim", "name": "Prim算法", "package": "networkx.algorithms.tree.mst", "apply": ["最小生成树"], "evolved_status": null},
+            {"id": "hungarian", "name": "匈牙利算法", "package": "scipy.optimize.linear_sum_assignment", "apply": ["指派问题", "二分图匹配"], "evolved_status": null}
+          ]
+        }
+      }
+    },
+    "statistics": {
+      "name": "统计与数据预处理",
+      "subdomains": {
+        "preprocessing": {
+          "name": "数据预处理",
+          "methods": [
+            {"id": "standard_scaler", "name": "标准化", "package": "sklearn.preprocessing.StandardScaler", "apply": ["不同量纲特征", "距离型算法前"], "evolved_status": null},
+            {"id": "minmax", "name": "归一化", "package": "sklearn.preprocessing.MinMaxScaler", "apply": ["神经网络输入", "固定范围输出"], "evolved_status": null},
+            {"id": "pca", "name": "PCA降维", "package": "sklearn.decomposition.PCA", "apply": ["高维数据可视化", "去噪", "特征压缩"], "evolved_status": null},
+            {"id": "outlier_iqr", "name": "IQR离群检测", "package": "numpy", "apply": ["单变量异常值"], "params": {"multiplier": [1.5, 3.0]}, "evolved_status": null}
+          ]
+        },
+        "inference": {
+          "name": "统计推断",
+          "methods": [
+            {"id": "t_test", "name": "t检验", "package": "scipy.stats.ttest_ind", "apply": ["两组均值比较"], "evolved_status": null},
+            {"id": "anova", "name": "方差分析(ANOVA)", "package": "scipy.stats.f_oneway", "apply": ["多组均值比较"], "evolved_status": null},
+            {"id": "chi2", "name": "卡方检验", "package": "scipy.stats.chi2_contingency", "apply": ["分类变量关联"], "evolved_status": null}
+          ]
+        },
+        "clustering": {
+          "name": "聚类分析",
+          "methods": [
+            {"id": "kmeans", "name": "K-Means", "package": "sklearn.cluster.KMeans", "apply": ["球状聚类", "客户细分"], "evolved_status": null},
+            {"id": "dbscan", "name": "DBSCAN", "package": "sklearn.cluster.DBSCAN", "apply": ["任意形状聚类", "离群点检测"], "evolved_status": null},
+            {"id": "hierarchical", "name": "层次聚类", "package": "scipy.cluster.hierarchy", "apply": ["小数据", "树状图展示"], "evolved_status": null}
+          ]
+        }
+      }
+    },
+    "simulation": {
+      "name": "仿真与蒙特卡洛",
+      "subdomains": {
+        "monte_carlo": {
+          "name": "蒙特卡洛方法",
+          "methods": [
+            {"id": "mc_sampling", "name": "随机采样", "package": "numpy.random", "apply": ["数值积分", "风险评估", "结果验证"], "evolved_status": null},
+            {"id": "mc_mcmc", "name": "MCMC", "package": "pymc/emcee", "apply": ["贝叶斯推断", "参数估计"], "evolved_status": null}
+          ]
+        },
+        "discrete": {
+          "name": "离散事件仿真",
+          "methods": [
+            {"id": "queueing", "name": "排队论", "package": "custom/simpy", "apply": ["服务系统", "交通流"], "evolved_status": null},
+            {"id": "cellular", "name": "元胞自动机", "package": "custom", "apply": ["传染病", "交通流", "疏散"], "evolved_status": null}
+          ]
+        }
+      }
+    }
+  },
+  "problem_type_mapping": {
+    "optimization": ["资源分配", "调度排程", "路线规划", "参数优化"],
+    "regression": ["关系建模", "参数估计", "趋势拟合", "物理定律"],
+    "prediction": ["时序预测", "趋势外推", "人口预测"],
+    "evaluation": ["方案比选", "绩效评估", "风险评级"],
+    "classification": ["模式识别", "故障诊断", "信用评分"],
+    "ode": ["动力学", "控制系统", "传染病模型"],
+    "network": ["最短路径", "网络流", "连通性"],
+    "statistics": ["数据探索", "假设检验", "降维聚类"],
+    "simulation": ["随机系统", "风险评估", "虚拟实验"]
+  }
+}
