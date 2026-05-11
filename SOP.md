@@ -48,7 +48,7 @@
 1. 读题目 — 从 PDF 提取文本，或从用户提供的描述中提取
 2. 查数据 — 检查 `data/` 里的文件，分析结构
 3. 判题型 — 优化/预测/评价/分类/ODE/图论/混合
-4. 查资产 — 读 `algorithms/index.json` 找匹配算法，读 `algorithms/*.md` 看详细文档，用 `evolver.py suggest --problem-type <题型>` 查历史经验，用 `paper_search.py` 搜论文
+4. 查资产 — 读 `algorithms/index.json` 找匹配算法，读 `algorithms/*.md` 看详细文档，用 `python tools/evolution/evolver.py suggest --problem-type <题型>` 查历史经验，用 `python tools/search/paper_search.py --query "关键词"` 搜论文
 5. 选模型 — 遵守模型选择三原则：能用简单就不用复杂
 6. 设计算法 — 写清楚求解步骤、流程图、关键参数
 7. 建术语表 — 统一定义全文术语和符号
