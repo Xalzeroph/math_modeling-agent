@@ -65,7 +65,7 @@ tags: [math, modeling, cumcm, mcm, self-evolving, python]
 | 资产 | 位置 | 内容 |
 |------|------|------|
 | 算法库 | `algorithms/index.json` + `algorithms/*.md` + `code_index.json` | 9领域/30+子领域/74方法 + MATLAB→Python映射 |
-| 论文库 | `references/` | **1766篇PDF**（美赛687+国赛301+研赛778），按模型类型分类 |
+| 论文库 | `references/papers/` | **1489篇PDF**，按6大类28子类组织 |
 | 评分基线 | `references/empirical_baselines.json` | 91篇CUMCM论文的11维经验分布 |
 | 反模式库 | `rules/antipatterns.md` | 39条常见错误，按严重度分级 |
 | 进化经验 | `memory/evolution/` | 历史策略和代码模板 |
@@ -97,7 +97,7 @@ python tools/evolver.py summary   # 进化摘要
 
 ## 建模阶段 — 论文学习
 
-每次建模的问题分析阶段，`paper_learn.py` 会自动从 714 篇论文库中按题型匹配一篇范文。Claude Code 读完 PDF 后提取写作规律存储：
+每次建模的问题分析阶段，`paper_learn.py` 会自动从 1489 篇论文库中按题型匹配一篇范文。Claude Code 读完 PDF 后提取写作规律存储：
 
 ```bash
 python tools/paper_learn.py list                                    # 列出所有论文及题型
@@ -105,4 +105,4 @@ python tools/paper_learn.py suggest --problem-type optimization     # 推荐下�
 python tools/paper_learn.py learn --paper "xxx" --session "xxx" --extraction "..."
 ```
 
-学完的写作规律自动沉淀到 `roles/论文手.md` 的进化区。1766 篇论文学完，论文手积累 1766 条写作技巧。
+学完的写作规律自动沉淀到 `roles/论文手.md` 的进化区。1489 篇论文学完，论文手积累 1489 条写作技巧。
