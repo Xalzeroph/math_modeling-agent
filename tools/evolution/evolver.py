@@ -10,12 +10,12 @@
   5. 蒸馏 — 从多次实践中提炼可迁移的通用模板
 
 用法:
-  python tools/evolver.py evolve --session "名称" --problem '{}' --results '{}'
-  python tools/evolver.py suggest --problem-type STRING
-  python tools/evolver.py gaps                        # 查看知识盲区
-  python tools/evolver.py summary                     # 查看进化摘要
-  python tools/evolver.py sessions                    # 查看所有 session
-  python tools/evolver.py compare --session A --session B  # 对比两次 session
+  python tools/evolution/evolver.py evolve --session "名称" --problem '{}' --results '{}'
+  python tools/evolution/evolver.py suggest --problem-type STRING
+  python tools/evolution/evolver.py gaps                        # 查看知识盲区
+  python tools/evolution/evolver.py summary                     # 查看进化摘要
+  python tools/evolution/evolver.py sessions                    # 查看所有 session
+  python tools/evolution/evolver.py compare --session A --session B  # 对比两次 session
 """
 
 import argparse
@@ -34,7 +34,7 @@ from typing import List, Optional
 def _resolve_root() -> Path:
     d = Path.cwd()
     for _ in range(5):
-        if (d / "sessions").exists() and (d / "tools" / "evolver.py").exists():
+        if (d / "algorithms").exists():
             return d
         d = d.parent
     return Path.cwd()
@@ -99,18 +99,25 @@ def _update_table(filepath: Path, marker: str, new_entries: List[dict]) -> bool:
 class MathModelEvolver:
     def __init__(self, root: Path):
         self.root = root
-        self.evo_dir = root / "memory" / "evolution"
-        self.evo_dir.mkdir(parents=True, exist_ok=True)
-        self.strategies = self._load("strategies.json")
-        self.templates_db = self._load("code_templates.json")
-        self.qa_db = self._load("qa_patterns.json")  # 问题-解法映射
+        # 按角色分类的记忆目录
+        self.mem_dirs = {
+            "modeler": root / "memory" / "modeler",
+            "coder":   root / "memory" / "coder",
+            "writer":  root / "memory" / "writer",
+        }
+        for d in self.mem_dirs.values():
+            d.mkdir(parents=True, exist_ok=True)
 
-    def _load(self, fname: str) -> dict:
-        f = self.evo_dir / fname
+        self.strategies = self._load("modeler", "strategies.json")   # 题型→策略映射
+        self.templates_db = self._load("coder", "code_templates.json")  # 代码模板
+        self.qa_db = self._load("modeler", "qa_patterns.json")       # 问题-解法映射
+
+    def _load(self, role: str, fname: str) -> dict:
+        f = self.mem_dirs[role] / fname
         return json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
 
-    def _save(self, fname: str, data: dict):
-        (self.evo_dir / fname).write_text(
+    def _save(self, role: str, fname: str, data: dict):
+        (self.mem_dirs[role] / fname).write_text(
             json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
 
     # ── 主入口：一次完整进化 ──────────────────────
@@ -165,9 +172,9 @@ class MathModelEvolver:
         _update_strategies(self.strategies, ptype, models, keywords, success)
         _update_code_templates(self.templates_db, session_dir, self.root)
 
-        self._save("strategies.json", self.strategies)
-        self._save("code_templates.json", self.templates_db)
-        self._save("qa_patterns.json", self.qa_db)
+        self._save("modeler", "strategies.json", self.strategies)
+        self._save("coder", "code_templates.json", self.templates_db)
+        self._save("modeler", "qa_patterns.json", self.qa_db)
 
         # ── 5. 对比：跟历史最佳比较
         comparison = _compare_to_best(self.qa_db, ptype, score)
@@ -246,7 +253,7 @@ class MathModelEvolver:
 
     def distill(self) -> dict:
         result = _distill(self.root)
-        self._save("distilled.json", result)
+        self._save("modeler", "distilled.json", result)
         return result
 
 

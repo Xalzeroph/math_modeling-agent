@@ -42,13 +42,13 @@ tags: [math, modeling, cumcm, mcm, self-evolving, python]
 
 这些都是 Claude Code 自己做不了的事，需要时直接调用：
 
-| 工具 | 干什么 | 什么时候用 |
-|------|--------|----------|
-| `compile_latex.py` | LaTeX编译（xelatex/pdflatex 多pass） | 论文阶段 |
-| `scorer.py` | 形式检查 + 百分位对比评分 | 写论文时自检 |
-| `paper_search.py` | arXiv/OpenAlex/Semantic Scholar 多源搜索 | 建模手找文献时 |
-| `evolver.py` | 记录经验到role文档、更新策略/QA/代码模板 | 做完题后进化 |
-| `pdf_extractor.py` | 提取PDF文本和表格 | 题目是PDF或需要提取论文表格时 |
+| 类别 | 工具 | 干什么 | 什么时候用 |
+|------|------|--------|----------|
+| 文件操作 | `file_ops/compile_latex.py` | LaTeX编译（xelatex/pdflatex 多pass） | 论文阶段 |
+| 文件操作 | `file_ops/pdf_extractor.py` | 提取PDF文本和表格 | 题目是PDF或需要提取论文表格时 |
+| 信息搜索 | `search/paper_search.py` | arXiv/OpenAlex/Semantic Scholar 多源搜索 | 建模手找文献时 |
+| 经验沉淀 | `evolution/scorer.py` | 形式检查 + 百分位对比评分 | 写论文时自检 |
+| 经验沉淀 | `evolution/evolver.py` | 记录经验到role文档、更新策略/QA/代码模板 | 做完题后进化 |
 
 ## 可用的知识资产
 
@@ -62,14 +62,14 @@ tags: [math, modeling, cumcm, mcm, self-evolving, python]
 | 反模式库 | `rules/antipatterns.md` | 39条常见错误，按严重度分级 |
 | 评阅要点 | `references/官方资料/评阅要点/` | 2004-2018年CUMCM官方评阅要点 |
 | 经验分享 | `references/官方资料/经验分享/` | 建模入门、论文写作、美赛经验等 |
-| 进化经验 | `memory/evolution/` | 历史策略和代码模板 |
+| 进化经验 | `memory/modeler/` + `memory/coder/` + `memory/writer/` | 按角色分类的历史策略 |
 | LaTeX模板 | `templates/` | 国赛/美赛论文模板 |
 | 题目归档 | `sessions/` | 过去做的所有题目，完整产物 |
 
 ## 每次做完题后 — 进化 + 增强
 
 ```bash
-python tools/evolver.py evolve --session "题目名称" --problem '{...}' --results '{...}'
+python tools/evolution/evolver.py evolve --session "题目名称" --problem '{...}' --results '{...}'
 ```
 
 进化引擎执行 7 种增强：
@@ -84,9 +84,9 @@ python tools/evolver.py evolve --session "题目名称" --problem '{...}' --resu
 
 **自我增强命令**：
 ```bash
-python tools/evolver.py gaps      # 知识盲区
-python tools/evolver.py distill   # 高频模式提取
-python tools/evolver.py summary   # 进化摘要
+python tools/evolution/evolver.py gaps      # 知识盲区
+python tools/evolution/evolver.py distill   # 高频模式提取
+python tools/evolution/evolver.py summary   # 进化摘要
 ```
 
 ## 建模阶段 — 论文学习

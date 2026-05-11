@@ -120,22 +120,22 @@
 ### 阶段 7：最终编译
 
 ```bash
-python tools/compile_latex.py compile --mode cumcm
+python tools/file_ops/compile_latex.py compile --mode cumcm
 ```
 
 ### 阶段 8：完成
 
 **评分**：
 ```bash
-python tools/scorer.py --session "题目名称" --mode standard
+python tools/evolution/scorer.py --session "题目名称" --mode standard
 ```
 10 维度打分，基于 91 篇 CUMCM 获奖论文基线。告诉用户哪里还需要改进。
 
 **进化**：
 ```bash
-python tools/evolver.py evolve --session "题目名称" --problem '{...}' --results '{...}'
+python tools/evolution/evolver.py evolve --session "题目名称" --problem '{...}' --results '{...}'
 ```
-自动更新 roles/、algorithms/、models/cases/、memory/evolution/。
+自动更新 roles/、algorithms/、models/cases/、memory/modeler/、memory/coder/、memory/writer/。
 
 ---
 

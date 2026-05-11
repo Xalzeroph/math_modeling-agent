@@ -6,10 +6,10 @@
 + LLM-MM-Agent 的 Actor-Critic 评估模式
 
 用法:
-  python tools/scorer.py --session "2026-数维杯-A-磁悬浮"                    # 标准评分
-  python tools/scorer.py --session "2026-数维杯-A-磁悬浮" --mode fast       # 快速扫描
-  python tools/scorer.py --session "2026-数维杯-A-磁悬浮" --mode championship # 冠军模式
-  python tools/scorer.py --session "2026-数维杯-A-磁悬浮" --layer L2         # 跨阶段回溯
+  python tools/evolution/scorer.py --session "2026-数维杯-A-磁悬浮"                    # 标准评分
+  python tools/evolution/scorer.py --session "2026-数维杯-A-磁悬浮" --mode fast       # 快速扫描
+  python tools/evolution/scorer.py --session "2026-数维杯-A-磁悬浮" --mode championship # 冠军模式
+  python tools/evolution/scorer.py --session "2026-数维杯-A-磁悬浮" --layer L2         # 跨阶段回溯
 """
 
 import argparse
@@ -23,7 +23,7 @@ from typing import Optional
 def _resolve_root() -> Path:
     d = Path.cwd()
     for _ in range(5):
-        if (d / "tools" / "scorer.py").exists():
+        if (d / "algorithms").exists():
             return d
         d = d.parent
     return Path.cwd()

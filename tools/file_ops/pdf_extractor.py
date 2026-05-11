@@ -11,7 +11,7 @@ from typing import List, Optional
 def _resolve_root() -> Path:
     d = Path.cwd()
     for _ in range(5):
-        if (d / "progress.md").exists() or (d / "data").exists():
+        if (d / "algorithms").exists():
             return d
         d = d.parent
     return Path.cwd()
