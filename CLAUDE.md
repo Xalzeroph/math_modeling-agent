@@ -30,11 +30,17 @@ tags: [math, modeling, cumcm, mcm, self-evolving, python]
 
 ## 开始建模
 
-用户只需做两件事：
-1. 把题目 PDF 和数据文件放到 `sessions/题目名称/` 下
-2. 对 Claude Code 说"帮我做这道题"
+用户只需做一件事：
+1. 告诉你题目名称，把题目 PDF 和数据文件给你
 
-然后对 Claude Code 说"帮我做这道题"。题型由建模手分析后跟你确认，一切在对话中决定。
+然后你（Claude Code）做的事：
+```bash
+mkdir -p sessions/题目名称/data
+# 把用户给的文件放进去
+```
+之后的 `notes/`、`solvers/`、`figures/`、`paper/` 等目录在对应阶段自动创建。
+
+题型由建模手分析后跟用户确认，一切在对话中决定。
 
 ---
 
