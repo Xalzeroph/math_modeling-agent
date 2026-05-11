@@ -245,7 +245,9 @@ class MathModelEvolver:
         }
 
     def distill(self) -> dict:
-        return _distill(self.root)
+        result = _distill(self.root)
+        self._save("distilled.json", result)
+        return result
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -385,6 +387,7 @@ def _evolve_algorithms(root, models, success, ptype):
         "prediction": ["02-预测类算法说明.md"], "evaluation": ["03-评价类算法说明.md"],
         "network": ["04-图论与网络分析算法说明.md"], "classification": ["07-机器学习算法说明.md"],
         "ode": ["06-综合类算法说明.md"], "statistics": ["05-统计分析与数据处理算法说明.md"],
+        "simulation": ["06-综合类算法说明.md"],
     }
     for m in models:
         for a in m.get("algorithms", []):

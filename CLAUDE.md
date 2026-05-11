@@ -68,6 +68,8 @@ tags: [math, modeling, cumcm, mcm, self-evolving, python]
 | 论文库 | `references/papers/` | **1489篇PDF**，按6大类28子类组织 |
 | 评分基线 | `references/empirical_baselines.json` | 91篇CUMCM论文的10维经验分布 |
 | 反模式库 | `rules/antipatterns.md` | 39条常见错误，按严重度分级 |
+| 评阅要点 | `references/官方资料/评阅要点/` | 2004-2018年CUMCM官方评阅要点 |
+| 经验分享 | `references/官方资料/经验分享/` | 建模入门、论文写作、美赛经验等 |
 | 进化经验 | `memory/evolution/` | 历史策略和代码模板 |
 | LaTeX模板 | `templates/` | 国赛/美赛论文模板 |
 | 题目归档 | `sessions/` | 过去做的所有题目，完整产物 |

@@ -83,6 +83,8 @@ TYPE_WEIGHTS = {
     "ode":          {"formula_rigor": 1.5, "verification_complete": 1.3, "sensitivity_depth": 1.3},
     "classification":{"verification_complete": 1.4, "model_diversity": 1.2, "visual_richness": 1.2},
     "network":      {"model_diversity": 1.3, "verification_complete": 1.2, "visual_richness": 1.3},
+    "statistics":   {"verification_complete": 1.4, "formula_rigor": 1.3, "visual_richness": 1.2},
+    "simulation":   {"verification_complete": 1.3, "sensitivity_depth": 1.4, "model_diversity": 1.3},
 }
 
 

@@ -3,11 +3,8 @@
     "original_name": "AHP层次分析法",
     "sub_algos": [],
     "key_functions": [
-      "ahp",
       "rand → numpy.random",
-      "ri",
-      "sglsortexamine",
-      "tw"
+      "sglsortexamine"
     ],
     "m_files": 8
   },
@@ -26,29 +23,15 @@
     "sub_algos": [
       {
         "name": "多目标模糊综合评价",
-        "functions": [
-          "f"
-        ]
+        "functions": []
       },
       {
         "name": "模糊聚类",
-        "functions": [
-          "N1",
-          "ab",
-          "err",
-          "f1",
-          "f2"
-        ]
+        "functions": []
       }
     ],
     "key_functions": [
-      "N1",
-      "ab",
-      "cluster → sklearn.cluster",
-      "err",
-      "f",
-      "f1",
-      "f2"
+      "cluster → sklearn.cluster"
     ],
     "m_files": 11
   },
@@ -56,7 +39,6 @@
     "original_name": "GoalProgramming(目标规划、多元分析与插值的相关例子)",
     "sub_algos": [],
     "key_functions": [
-      "F",
       "linprog → scipy.optimize.linprog",
       "rand → numpy.random"
     ],
@@ -68,33 +50,25 @@
       {
         "name": "basic",
         "functions": [
-          "BG",
-          "CBG",
           "CoCycles",
           "CreateArrow",
           "Cycles",
           "FPRINTF",
-          "for",
           "grDecOrd"
         ]
       }
     ],
     "key_functions": [
       "BFS",
-      "BG",
-      "BGf",
-      "CBG",
       "CoCycles",
       "CreateArrow",
       "Cycles",
-      "D",
       "DFS",
       "Dijkf",
       "FPRINTF",
       "Fleuf1",
       "Floyd",
-      "Huffman",
-      "b"
+      "Huffman"
     ],
     "m_files": 61
   },
@@ -108,21 +82,16 @@
     "original_name": "HeuristicAlgorithm（补分启发式算法，包括神经网络、模拟退火、遗传算法）",
     "sub_algos": [],
     "key_functions": [
-      "E",
       "FIG_D",
       "Fitness",
-      "J",
       "SVMcgForClass",
       "SVMcgForRegress",
-      "Val",
       "chapter13_GA",
       "chapter13_GridSearch",
       "chapter13_PSO",
       "chapter14",
       "chapter15",
-      "children",
-      "d",
-      "dis"
+      "children"
     ],
     "m_files": 117
   },
@@ -163,25 +132,17 @@
         "functions": [
           "ChromNew",
           "NewChrom",
-          "P",
           "PVal",
           "PlotRec",
-          "Pos",
-          "SelS",
-          "cal"
+          "SelS"
         ]
       },
       {
         "name": "chapter12 免疫优化算法在物流配送中心选址中的应用",
         "functions": [
           "concentration",
-          "exc",
-          "fit",
-          "flag",
           "newindividuals",
-          "pop",
-          "resemble",
-          "ret"
+          "resemble"
         ]
       },
       {
@@ -193,19 +154,13 @@
       },
       {
         "name": "chapter16 基于动态粒子群算法的动态环境寻优算法",
-        "functions": [
-          "ff"
-        ]
+        "functions": []
       },
       {
         "name": "chapter19 基于模拟退火算法的TSP算法",
         "functions": [
-          "D",
           "DrawPath",
           "Metropolis",
-          "S2",
-          "len",
-          "p",
           "varargout"
         ]
       },
@@ -215,16 +170,12 @@
           "FCMfun",
           "GAFCM",
           "ObjFun",
-          "U",
           "iterateFCM"
         ]
       },
       {
         "name": "chapter21 模拟退火算法工具箱及应用",
-        "functions": [
-          "X0",
-          "y"
-        ]
+        "functions": []
       },
       {
         "name": "chapter23 基于蚁群算法的二维路径规划算法",
@@ -236,15 +187,12 @@
         "name": "chapter24 基于蚁群算法的三维路径规划算法",
         "functions": [
           "fitness",
-          "qfz",
           "searchpath"
         ]
       },
       {
         "name": "chapter3 基于遗传算法的BP神经网络优化算法",
-        "functions": [
-          "err"
-        ]
+        "functions": []
       }
     ],
     "key_functions": [
@@ -254,7 +202,6 @@
       "AF_swarm",
       "Chrom",
       "ChromNew",
-      "D",
       "DeJong_f2",
       "DeJong_f3",
       "DeJong_f4",
@@ -289,7 +236,6 @@
     "original_name": "NonLinearProgramming非线性规划",
     "sub_algos": [],
     "key_functions": [
-      "f",
       "fmincon → scipy.optimize.minimize",
       "fun2",
       "rand → numpy.random"
@@ -311,14 +257,10 @@
     "sub_algos": [
       {
         "name": "趋势外推预测法",
-        "functions": [
-          "y"
-        ]
+        "functions": []
       }
     ],
-    "key_functions": [
-      "y"
-    ],
+    "key_functions": [],
     "m_files": 13
   },
   "《MATLAB 神经网络30个案例分析》源程序 数据": {
@@ -326,10 +268,7 @@
     "sub_algos": [
       {
         "name": "chapter11",
-        "functions": [
-          "E",
-          "du"
-        ]
+        "functions": []
       },
       {
         "name": "chapter13",
@@ -364,54 +303,37 @@
       },
       {
         "name": "chapter23",
-        "functions": [
-          "y"
-        ]
+        "functions": []
       },
       {
         "name": "chapter26",
-        "functions": [
-          "y"
-        ]
+        "functions": []
       },
       {
         "name": "chapter27",
         "functions": [
-          "Val",
           "fitness"
         ]
       },
       {
         "name": "chapter3",
-        "functions": [
-          "error",
-          "flag",
-          "ret"
-        ]
+        "functions": []
       },
       {
         "name": "chapter4",
         "functions": [
-          "fitness",
-          "flag",
-          "ret"
+          "fitness"
         ]
       }
     ],
     "key_functions": [
-      "D",
-      "E",
       "FIG_D",
       "Fitness",
-      "J",
       "SVMcgForClass",
       "SVMcgForRegress",
       "Used",
-      "Val",
       "adjswapmutation",
       "arithXover",
-      "at",
-      "b2f",
       "based",
       "binaryMutate"
     ],
@@ -421,18 +343,12 @@
     "original_name": "《MATLAB图像处理》源文件",
     "sub_algos": [],
     "key_functions": [
-      "B",
-      "B1",
-      "BW",
-      "C",
       "Denoise",
       "Gabor",
-      "J",
       "Moment_Seven",
       "OutImage",
       "RLfilter",
       "SEASON",
-      "Z",
       "angles",
       "assumes",
       "binary"
@@ -445,33 +361,22 @@
       {
         "name": "第10章 随机神经网络",
         "functions": [
-          "len",
           "new_path",
-          "value",
-          "y"
+          "value"
         ]
       },
       {
         "name": "第7章 径向基函数网络",
         "functions": [
-          "clas",
-          "y"
+          "clas"
         ]
       },
       {
         "name": "第9章 反馈神经网络",
-        "functions": [
-          "C",
-          "c"
-        ]
+        "functions": []
       }
     ],
     "key_functions": [
-      "C",
-      "I",
-      "P",
-      "b",
-      "c",
       "clas",
       "cluster → sklearn.cluster",
       "divide",
@@ -491,8 +396,6 @@
       {
         "name": "CH02",
         "functions": [
-          "C",
-          "S",
           "hanoi",
           "move",
           "print_matrix",
@@ -509,8 +412,6 @@
       {
         "name": "CH05",
         "functions": [
-          "S",
-          "c",
           "varargout"
         ]
       },
@@ -518,10 +419,7 @@
         "name": "CH06",
         "functions": [
           "BreakPoint",
-          "tf",
-          "varargout",
-          "xi",
-          "y"
+          "varargout"
         ]
       },
       {
@@ -530,11 +428,8 @@
           "Concavity",
           "Evolute_Draw",
           "Extremum",
-          "K",
           "Monotonicity",
-          "T",
-          "bisect",
-          "d"
+          "bisect"
         ]
       },
       {
@@ -542,10 +437,6 @@
         "functions": [
           "ComplexQuad",
           "DrawSolid",
-          "I",
-          "L",
-          "S",
-          "V",
           "arrow",
           "arrow_callback"
         ]
@@ -553,10 +444,8 @@
       {
         "name": "CH09",
         "functions": [
-          "A",
           "ConvergenceRadius",
           "LimitSeries",
-          "PI",
           "PositiveIermSeries",
           "fseries",
           "fseriesquadl",
@@ -571,18 +460,13 @@
           "LU_Equ",
           "LinearEqs",
           "Newtons",
-          "varargout",
-          "x"
+          "varargout"
         ]
       },
       {
         "name": "CH11",
         "functions": [
-          "C",
           "CalArrow",
-          "D",
-          "S",
-          "h",
           "rotation",
           "surface_para",
           "theta"
@@ -591,28 +475,21 @@
       {
         "name": "CH12",
         "functions": [
-          "C",
           "Extremum2",
           "Least_square",
-          "P",
-          "T",
           "dfdl",
-          "n",
           "varargout"
         ]
       }
     ],
     "key_functions": [
-      "A",
       "BreakPoint",
-      "C",
       "CalArrow",
       "Classical_RK4",
       "Classical_RK4s",
       "ComplexQuad",
       "Concavity",
       "ConvergenceRadius",
-      "D",
       "DrawSolid",
       "Equ_iter",
       "Evolute_Draw",
