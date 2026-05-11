@@ -337,11 +337,20 @@ def main():
     parser.add_argument("--session", required=True)
     parser.add_argument("--mode", default="standard", choices=["fast", "standard", "championship"])
     parser.add_argument("--problem-type", default="unknown")
+    parser.add_argument("--no-save", action="store_true", help="不保存到文件（仅stdout）")
     args = parser.parse_args()
 
     root = _resolve_root()
     result = score_session(root, args.session, args.mode, args.problem_type)
     print(json.dumps(result, indent=2, ensure_ascii=False))
+
+    # 自动保存到 session 目录供 evolver 读取
+    if not args.no_save and "status" not in result.get("error", ""):
+        session_dir = root / "sessions" / args.session
+        session_dir.mkdir(parents=True, exist_ok=True)
+        report_path = session_dir / "eval_report.json"
+        report_path.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
+        print(f"\n[已保存到 {report_path.relative_to(root)}]", file=sys.stderr)
 
 
 if __name__ == "__main__":

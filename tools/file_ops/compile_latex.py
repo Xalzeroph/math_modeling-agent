@@ -103,15 +103,27 @@ def compile_paper(root: Path, mode: str = "cumcm") -> dict:
         combined = stdout + "\n" + stderr
 
         # 错误检测
-        error_keywords = ["Error:", "!", "Fatal error", "Undefined control sequence"]
+        # LaTeX Error 格式: "! LaTeX Error: ..." — 精确匹配避免误报 `!` 在正常文本中
+        error_keywords = [
+            "LaTeX Error:", "Fatal error", "Undefined control sequence",
+            "Emergency stop", "!  ==> Fatal error",
+        ]
         for kw in error_keywords:
             if kw in combined:
-                # 提取相关行
                 lines = combined.split("\n")
                 for j, line in enumerate(lines):
                     if kw in line:
                         ctx = lines[max(0, j-2):min(len(lines), j+3)]
                         errors_output.append(f"[Pass {i+1}] {kw}: " + " | ".join(ctx).strip()[:200])
+
+        # 警告检测（不影响编译结果，但值得关注）
+        warning_keywords = ["undefined references", "Citation", "Rerun to get"]
+        for wk in warning_keywords:
+            if wk in combined:
+                lines = combined.split("\n")
+                for j, line in enumerate(lines):
+                    if wk in line:
+                        errors_output.append(f"[Pass {i+1}] WARNING {wk}: " + line.strip()[:200])
 
     pdf_path = paper_dir / tex_name.replace(".tex", ".pdf")
     success = pdf_path.exists()

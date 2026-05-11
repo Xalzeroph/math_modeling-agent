@@ -205,10 +205,32 @@ class MathModelEvolver:
             return {"status": "no_data", "message": f"没有 {problem_type} 的历史策略"}
 
         best = max(candidates.values(), key=lambda x: x.get("success_rate", 0) * x.get("count", 1))
+
+        # 提取失败模式
+        failures = []
+        cases_dir = self.root / "models" / "cases"
+        if cases_dir.exists():
+            for case_file in sorted(cases_dir.glob("*.md")):
+                text = case_file.read_text(encoding="utf-8")[:2000]
+                m = re.search(r'题型\*\*:\s*(\w+)', text)
+                if m and m.group(1) == problem_type and "FAIL" in text:
+                    lesson_m = re.search(r'教训\*\*\n*(.+?)(?:\n##|\Z)', text, re.DOTALL)
+                    lessons = lesson_m.group(1).strip()[:300] if lesson_m else ""
+                    failures.append({
+                        "session": case_file.stem,
+                        "lesson": lessons,
+                    })
+
         return {
             "status": "ok",
             "best": best,
             "alternatives": [v for v in candidates.values() if v != best][:3],
+            "failure_patterns": failures[:5],
+            "suggestion": (
+                f"推荐 {best.get('algorithms', [])} "
+                f"(成功率 {best.get('success_rate', 0):.0%})"
+                + (f"，注意: {failures[0]['lesson'][:60]}" if failures else "")
+            ),
         }
 
     def gaps(self) -> dict:
@@ -404,9 +426,23 @@ def _evolve_algorithms(root, models, success, ptype):
                     continue
                 content = fpath.read_text(encoding="utf-8")
                 tag = f"<!-- EVOLVED: verified {_now()} -->"
-                if tag not in content and a.lower() in content.lower():
-                    fpath.write_text(content.replace(a, f"{a} {tag}", 1), encoding="utf-8")
+                if tag in content:
+                    continue
+                # 用正则匹配算法标题行，避免 replace 误匹配无关文本
+                # 匹配 "## N. 算法名" 或 "## 算法名"
+                pattern = re.compile(
+                    rf'(^##\s+\d+\.?\s*.*?{re.escape(a)}.*?$)|'
+                    rf'(^##\s+{re.escape(a)}.*?$)',
+                    re.MULTILINE | re.IGNORECASE
+                )
+                matched = pattern.search(content)
+                if matched:
+                    new_line = f"{matched.group(0)} {tag}"
+                    content = content.replace(matched.group(0), new_line, 1)
+                    fpath.write_text(content, encoding="utf-8")
                     changes.append(f"算法库: 标记 {a} verified")
+                    break  # 只标记一次
+                # fallback: 算法名在文档中出现但找不到标题行，不标记
     return changes
 
 
@@ -510,6 +546,12 @@ def _detect_gaps(qa_db, root):
     missing = [t for t in ALL_PROBLEM_TYPES if t not in done_types]
 
     # 检查 algorithm/index.json 中有但从未验证过的算法
+    # qa_db 的 key 是 "problem_type_model_type"，value.algorithms 含算法列表
+    verified_algo_ids = set()
+    for v in qa_db.values():
+        for a in v.get("algorithms", []):
+            verified_algo_ids.add(a)
+
     index_file = root / "algorithms" / "index.json"
     unverified = []
     if index_file.exists():
@@ -517,7 +559,7 @@ def _detect_gaps(qa_db, root):
         for dk, domain in index.get("domains", {}).items():
             for sk, sub in domain.get("subdomains", {}).items():
                 for m in sub.get("methods", []):
-                    if not m.get("evolved_status") and m.get("id", "") not in qa_db:
+                    if not m.get("evolved_status") and m["id"] not in verified_algo_ids:
                         unverified.append({
                             "id": m["id"], "name": m["name"],
                             "domain": domain["name"], "package": m["package"],
@@ -582,6 +624,7 @@ def main():
     ev.add_argument("--session", required=True)
     ev.add_argument("--problem", default="{}")
     ev.add_argument("--results", default="{}")
+    ev.add_argument("--from-scorer", action="store_true", help="自动读取 sessions/{session}/eval_report.json")
 
     sub.add_parser("summary", help="进化摘要")
     sub.add_parser("sessions", help="所有 sessions")
@@ -601,7 +644,20 @@ def main():
 
     try:
         if args.action == "evolve":
-            r = evo.evolve(args.session, json.loads(args.problem), json.loads(args.results))
+            problem = json.loads(args.problem)
+            results = json.loads(args.results)
+            # --from-scorer: 自动从 scorer 输出加载
+            if getattr(args, "from_scorer", False):
+                eval_file = root / "sessions" / args.session / "eval_report.json"
+                if eval_file.exists():
+                    eval_data = json.loads(eval_file.read_text(encoding="utf-8"))
+                    if not problem or problem == {}:
+                        problem = {"type": eval_data.get("problem_type", "unknown"),
+                                   "keywords": [], "summary": args.session}
+                    results = {"overall_score": eval_data.get("overall_score", 0),
+                               "lessons": "\n".join(eval_data.get("improvements", [])),
+                               "grade": eval_data.get("grade", "?")}
+            r = evo.evolve(args.session, problem, results)
         elif args.action == "summary":
             r = evo.summary()
         elif args.action == "sessions":

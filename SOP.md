@@ -10,7 +10,7 @@
 ```
 问题分析 → 模型选择与构建 → 数据预处理 → 模型求解 
          → 模型验证 → 灵敏度分析 → 论文撰写 → 最终编译 
-         → 打包提交
+         → 评分进化 → 打包提交
 ```
 
 每个阶段的主导角色和关键产出：
@@ -25,6 +25,7 @@
 | 灵敏度分析 | 建模手 | `notes/sensitivity.md` | 讨论参数范围 |
 | 论文撰写 | 论文手 | `paper/main.tex` | 逐章讨论修改 |
 | 最终编译 | 论文手 | `paper/main.pdf` | 最终确认 |
+| 评分进化 | — | 评分报告 + 经验沉淀 | 复盘讨论 |
 | 打包提交 | — | `提交.zip` | 确认文件清单 |
 
 ---
@@ -50,7 +51,7 @@
 1. 读题目 — 从 PDF 提取文本，或从用户提供的描述中提取
 2. 查数据 — 检查 `data/` 里的文件，分析数据结构和大致规模
 3. 判题型 — 优化/预测/评价/分类/ODE/图论/混合
-4. 查资产 — 读 `algorithms/index.json` 找匹配算法，读 `algorithms/*.md` 看详细文档，用 `python tools/evolution/evolver.py suggest --problem-type <题型>` 查历史经验，用 `python tools/search/paper_search.py --query "关键词"` 搜论文
+4. 查资产 — 读 `algorithms/index.json` 找匹配算法，读 `algorithms/*.md` 看详细文档，用 `python tools/search/local_knowledge.py "关键词"` 做本地三源检索，用 `python tools/evolution/evolver.py suggest --problem-type <题型>` 查历史经验，用 `python tools/search/paper_search.py --query "关键词"` 搜外部论文
 5. 选模型 — 遵守模型选择三原则：能用简单就不用复杂
 6. 设计算法 — 写清楚求解步骤、流程图、关键参数
 7. 建术语表 — 统一定义全文术语和符号
@@ -176,7 +177,25 @@ python tools/file_ops/compile_latex.py compile --mode cumcm
 
 ---
 
-### 阶段 9：打包提交
+### 阶段 9：评分进化
+
+**评分**：
+```bash
+python tools/evolution/scorer.py --session "题目名称" --mode standard
+```
+10 维度打分，基于经验基线。评分结果自动保存到 `sessions/题目名称/eval_report.json`。
+
+**进化**：
+```bash
+python tools/evolution/evolver.py evolve --session "题目名称" --from-scorer
+```
+自动读取评分结果，更新 roles/、algorithms/、models/cases/、memory/modeler/、memory/coder/、memory/writer/。
+
+**跟用户讨论**：评分结果、经验总结、哪些地方可以改进。
+
+---
+
+### 阶段 10：打包提交
 
 1. 读官方提交要求 — 确认要求的文件清单、命名规则、目录结构
 2. 检查所有产出：

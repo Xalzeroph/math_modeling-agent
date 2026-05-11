@@ -46,9 +46,12 @@ tags: [math, modeling, cumcm, mcm, self-evolving, python]
 |------|------|--------|----------|
 | 文件操作 | `file_ops/compile_latex.py` | LaTeX编译（xelatex/pdflatex 多pass） | 论文阶段 |
 | 文件操作 | `file_ops/pdf_extractor.py` | 提取PDF文本和表格 | 题目是PDF或需要提取论文表格时 |
+| 文件操作 | `file_ops/data_checker.py` | 数据读取编码检测和格式报告 | 读取 Excel/CSV 时 |
+| 文件操作 | `file_ops/check_outputs.py` | 编译后产出完整性检查 | 最终编译完成后 |
 | 信息搜索 | `search/paper_search.py` | arXiv/OpenAlex/Semantic Scholar 多源搜索 | 建模手找文献时 |
-| 经验沉淀 | `evolution/scorer.py` | 形式检查 + 百分位对比评分 | 写论文时自检 |
-| 经验沉淀 | `evolution/evolver.py` | 记录经验到role文档、更新策略/QA/代码模板 | 做完题后进化 |
+| 信息搜索 | `search/local_knowledge.py` | 本地算法库+论文库+进化经验三源检索 | 问题分析阶段 |
+| 经验沉淀 | `evolution/scorer.py` | 形式检查 + 百分位对比评分（自动保存结果） | 写论文时自检 |
+| 经验沉淀 | `evolution/evolver.py` | 记录经验到role文档、更新策略/QA/代码模板（支持 --from-scorer） | 做完题后进化 |
 
 ## 可用的知识资产
 
