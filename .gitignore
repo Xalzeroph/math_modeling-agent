@@ -6,7 +6,6 @@ __pycache__/
 .DS_Store
 Thumbs.db
 sessions/
-memory/
 *.exe
 *.zip
 *.tar.gz

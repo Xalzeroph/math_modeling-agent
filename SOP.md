@@ -192,7 +192,7 @@ python tools/evolution/scorer.py --session "题目名称" --mode standard
 ```bash
 python tools/evolution/evolver.py evolve --session "题目名称" --from-scorer
 ```
-自动读取评分结果，更新 roles/、algorithms/、models/cases/、memory/modeler/、memory/coder/、memory/writer/。
+自动读取评分结果，更新 roles/、algorithms/、models/cases/。
 
 **跟用户讨论**：评分结果、经验总结、哪些地方可以改进。
 
