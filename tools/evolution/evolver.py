@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-自进化引擎 v6 — 做完题后记录经验到 roles/ 和 models/cases/
+自进化引擎 v7 — 做完题后记录经验到 roles/ 和 algorithms/
 
 用法:
   python tools/evolution/evolver.py evolve --session "名称" --from-scorer
@@ -117,9 +117,6 @@ class MathModelEvolver:
         # 2. 算法验证标记
         changes += _evolve_algorithms(self.root, models, success, ptype)
 
-        # 3. 案例沉淀到 models/cases/
-        changes += _evolve_cases(self.root, session_name, problem, results, success)
-
         return {
             "status": "ok",
             "session": session_name,
@@ -130,20 +127,20 @@ class MathModelEvolver:
         }
 
     def suggest(self, problem_type: str) -> dict:
-        """从 models/cases/ 和 role 文档进化区中检索历史策略"""
-        cases = self._scan_cases()
-        matches = [c for c in cases if problem_type in c.get("type", "")]
+        """从 sessions/ 的 eval_report.json 中检索历史策略"""
+        records = self._scan_sessions()
+        matches = [r for r in records if problem_type in r.get("type", "")]
 
         best = None
         best_score = 0
         failures = []
-        for c in matches:
-            score = c.get("score", 0)
+        for r in matches:
+            score = r.get("score", 0)
             if score > best_score:
                 best_score = score
-                best = c
-            if c.get("result") == "FAIL":
-                failures.append(c)
+                best = r
+            if score < 60:
+                failures.append(r)
 
         if not matches:
             return {"status": "no_data", "message": f"没有 {problem_type} 的历史策略"}
@@ -161,45 +158,43 @@ class MathModelEvolver:
             ) + (f"，注意: {failures[0].get('lessons', '')[:60]}" if failures else ""),
         }
 
-    def _scan_cases(self) -> List[dict]:
-        """扫描 models/cases/ 中所有案例"""
-        cases = []
-        case_dir = self.root / "models" / "cases"
-        if not case_dir.exists():
-            return cases
-        for f in sorted(case_dir.glob("*.md")):
-            text = f.read_text(encoding="utf-8")[:2000]
-            case = {"session": f.stem}
-            m = re.search(r'题型\*\*:\s*(\w+)', text)
-            if m:
-                case["type"] = m.group(1)
-            m = re.search(r'结果\*\*:\s*(\w+)', text)
-            if m:
-                case["result"] = m.group(1)
-            m = re.search(r'关键词\*\*:\s*(.+)', text)
-            if m:
-                case["keywords"] = [k.strip() for k in m.group(1).split(",")]
-            m = re.search(r'算法\*\*:\s*(.+)', text)
-            if m:
-                case["algorithms"] = [a.strip() for a in m.group(1).split(",")]
-            m = re.search(r'得分\*\*:\s*(\d+)', text)
-            if m:
-                case["score"] = int(m.group(1))
-            m = re.search(r'教训\*\*\n*(.+?)(?:\n##|\Z)', text, re.DOTALL)
-            if m:
-                case["lessons"] = m.group(1).strip()[:300]
-            cases.append(case)
-        return cases
+    def _scan_sessions(self) -> List[dict]:
+        """扫描 sessions/ 中的 eval_report.json 获取历史记录"""
+        records = []
+        sessions_dir = self.root / "sessions"
+        if not sessions_dir.exists():
+            return records
+        for d in sorted(sessions_dir.iterdir()):
+            if not d.is_dir():
+                continue
+            ef = d / "eval_report.json"
+            if not ef.exists():
+                continue
+            try:
+                data = json.loads(ef.read_text(encoding="utf-8"))
+            except:
+                continue
+            # 提取算法信息
+            models = _scan_models(d)
+            algos = list(set(a for m in models for a in m.get("algorithms", [])))
+            records.append({
+                "session": d.name,
+                "type": data.get("problem_type", "unknown"),
+                "score": data.get("overall_score", 0),
+                "grade": data.get("grade", "?"),
+                "algorithms": algos,
+                "lessons": "\n".join(data.get("improvements", [])),
+            })
+        return records
 
     def gaps(self) -> dict:
         """检测知识盲区 — 未做过的题型 + 未验证的算法"""
-        cases = self._scan_cases()
-        done_types = set(c.get("type", "") for c in cases)
+        records = self._scan_sessions()
+        done_types = set(r.get("type", "") for r in records)
 
-        # 统计已验证的算法
         verified_ids = set()
-        for c in cases:
-            for a in c.get("algorithms", []):
+        for r in records:
+            for a in r.get("algorithms", []):
                 verified_ids.add(a)
 
         missing = [t for t in ALL_PROBLEM_TYPES if t not in done_types]
@@ -405,30 +400,6 @@ def _evolve_algorithms(root, models, success, ptype):
                     changes.append(f"算法库: 标记 {a} verified")
                     break
     return changes
-
-
-def _evolve_cases(root, session_name, problem, results, success):
-    case_dir = root / "models" / "cases"
-    case_dir.mkdir(parents=True, exist_ok=True)
-    fpath = case_dir / f"{session_name}.md"
-
-    # 提取算法信息
-    session_dir = root / "sessions" / session_name
-    models = _scan_models(session_dir)
-    algos = list(set(a for m in models for a in m.get("algorithms", [])))
-
-    content = (
-        f"# {session_name}\n\n"
-        f"- **日期**: {_now()}\n"
-        f"- **题型**: {problem.get('type', 'unknown')}\n"
-        f"- **算法**: {', '.join(algos) if algos else 'N/A'}\n"
-        f"- **得分**: {results.get('overall_score', 0)}\n"
-        f"- **关键词**: {', '.join(problem.get('keywords', []))}\n"
-        f"- **结果**: {'PASS' if success else 'FAIL'}\n\n"
-        f"## 教训\n{results.get('lessons', '')}\n"
-    )
-    fpath.write_text(content, encoding="utf-8")
-    return [f"模型库: {fpath.name}"]
 
 
 # ═══════════════════════════════════════════════════════════════
