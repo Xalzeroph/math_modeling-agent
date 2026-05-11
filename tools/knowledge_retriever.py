@@ -88,22 +88,24 @@ def search_local_papers(root: Path, query: str, limit: int = 5) -> List[dict]:
 
         score = _score_keywords(full_name + " " + category, keywords)
 
-        # 加一些启发式匹配：问题类型映射
+        # 启发式匹配：关键词 → 相关子目录名
         type_map = {
-            "优化": ["A", "B"],
-            "调度": ["A", "B"],
-            "预测": ["C", "D"],
-            "数据": ["C", "D"],
-            "网络": ["D", "F"],
-            "环境": ["E"],
-            "政策": ["F"],
-            "微分方程": ["A"],
-            "ODE": ["A"],
-            "PDE": ["A"],
+            "优化": ["优化类", "线性规划", "整数规划", "遗传算法", "动态规划", "模拟退火", "蚁群算法", "粒子群"],
+            "调度": ["优化类", "线性规划", "动态规划", "模拟退火", "蚁群算法"],
+            "预测": ["预测类", "时间序列", "灰色预测", "灰色关联", "神经网络"],
+            "评价": ["评价类", "层次分析法", "TOPSIS", "模糊综合评价"],
+            "网络": ["图论网络类", "最短路径", "元胞自动机", "决策树"],
+            "数据": ["统计类", "回归分析", "聚类分析", "主成分分析", "插值拟合"],
+            "分类": ["统计类", "SVM", "逻辑回归", "聚类分析", "决策树"],
+            "回归": ["统计类", "回归分析", "逻辑回归", "插值拟合"],
+            "拟合": ["统计类", "插值拟合", "回归分析"],
+            "微分方程": ["仿真综合类", "微分方程"],
+            "模拟": ["仿真综合类", "蒙特卡洛", "仿真综合类"],
+            "排队": ["仿真综合类", "排队论"],
         }
-        for t_kw, categories in type_map.items():
-            if t_kw in " ".join(keywords).lower() or t_kw in query:
-                if category in categories:
+        for t_kw, matched_cats in type_map.items():
+            if t_kw in " ".join(keywords).lower():
+                if category in matched_cats:
                     score += 2.0
 
         if score > 0:

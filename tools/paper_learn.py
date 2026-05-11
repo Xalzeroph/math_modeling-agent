@@ -25,7 +25,7 @@ from collections import defaultdict
 def _resolve_root() -> Path:
     d = Path.cwd()
     for _ in range(5):
-        if (d / "references" / "MCM").exists() or (d / "references").exists():
+        if (d / "references" / "papers").exists() or (d / "references").exists():
             return d
         d = d.parent
     return Path.cwd()
@@ -72,17 +72,48 @@ def _list_papers(root: Path) -> list:
 
 
 def _match_type(name: str, category: str) -> list:
-    """匹配题型 — 目录名就是模型类型"""
+    """匹配题型 — 基于新的6大类28子类结构"""
+    # category 现在是子目录名（如"层次分析法"），通过父目录获取大类
     type_map = {
-        "优化与微分方程": ["optimization", "ode"],
-        "离散优化": ["optimization"],
-        "预测与数据分析": ["prediction", "regression"],
-        "网络与图论": ["network"],
-        "仿真与动力学": ["ode", "simulation"],
-        "评价与政策": ["evaluation"],
-        "国赛": ["general"],
-        "未分类": ["general"],
-        "题目与资料": [],
+        # 优化类子目录
+        "线性规划": ["optimization"],
+        "整数规划": ["optimization"],
+        "遗传算法": ["optimization"],
+        "动态规划": ["optimization"],
+        # 评价类子目录
+        "层次分析法": ["evaluation"],
+        "TOPSIS": ["evaluation"],
+        "模糊综合评价": ["evaluation"],
+        # 预测类子目录
+        "时间序列": ["prediction"],
+        "灰色预测": ["prediction"],
+        "灰色关联": ["prediction"],
+        # 统计类子目录
+        "回归分析": ["regression"],
+        "逻辑回归": ["regression", "classification"],
+        "聚类分析": ["classification"],
+        "主成分分析": ["regression"],
+        "因子分析": ["regression"],
+        "方差分析": ["regression"],
+        "典型相关分析": ["regression"],
+        "SVM": ["classification"],
+        "插值拟合": ["regression"],
+        # 图论网络类子目录
+        "最短路径": ["network", "optimization"],
+        "元胞自动机": ["network", "simulation"],
+        "决策树": ["classification", "network"],
+        # 仿真综合类子目录
+        "模拟退火": ["optimization", "simulation"],
+        "蚁群算法": ["optimization", "network"],
+        "粒子群": ["optimization", "simulation"],
+        "神经网络": ["prediction", "classification"],
+        "排队论": ["simulation", "network"],
+        "蒙特卡洛": ["simulation"],
+        "马尔科夫": ["prediction", "simulation"],
+        "微分方程": ["ode", "simulation"],
+        "博弈论": ["simulation"],
+        "小波分析": ["regression"],
+        "投影寻踪": ["regression"],
     }
     return type_map.get(category, ["general"])
 
