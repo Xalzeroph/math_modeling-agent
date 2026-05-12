@@ -99,8 +99,10 @@ class MathModelEvolver:
         # 2. 标记算法库 .md + 更新 index.json
         changes += _mark_algorithms(self.root, models, success, ptype, session_name, score)
 
-        # 3. 对 scorer 输出的结构化分析（供 Claude 写经验时参考）
-        analysis = _analyze_scorer_output(results, ptype)
+        # 3. scorer 输出的结构化分析（scorer 自己产出，evolver 仅传递）
+        analysis = results.get("analysis", {})
+        analysis["vs_self_pct"] = results.get("vs_self_pct", "N/A")
+        analysis["vs_paper_pct"] = results.get("vs_paper_pct", "N/A")
 
         return {
             "status": "ok",
@@ -349,55 +351,6 @@ def _update_index_json(root, algo_id, session_name, ptype, score):
                         m["evolved_status"] = [record]
                     idx_file.write_text(json.dumps(index, indent=2, ensure_ascii=False), encoding="utf-8")
                     return
-
-
-# 评分维度→论文手章节锚点
-WRITING_DIM_MAP = {
-    "abstract_quality": "WRITING_ABSTRACT",
-    "structure_completeness": "WRITING_SOLUTION",
-    "visual_richness": "WRITING_VISUALS",
-    "formula_rigor": "WRITING_MODELING",
-    "verification_complete": "WRITING_SOLUTION",
-    "sensitivity_depth": "WRITING_SENSITIVITY",
-    "model_diversity": "WRITING_MODELING",
-    "academic_norm": "WRITING_REFERENCES",
-    "ai_flavor_penalty": "WRITING_STYLE",
-}
-
-
-def _analyze_scorer_output(results: dict, ptype: str) -> dict:
-    """对 scorer 结果做结构化分析，供 Claude 写经验时参考"""
-    details = results.get("details", [])
-    if not details:
-        return {"note": "无评分细项"}
-
-    weak_items = []
-    strong_items = []
-    weak_anchors = []
-    for d in details:
-        score = d.get("score", 1.0)
-        if score < 0.65:
-            weak_items.append(f"{d.get('dimension','?')}: {score:.2f} — {d.get('desc','')}")
-            anchor = WRITING_DIM_MAP.get(d.get("dimension", ""))
-            if anchor and anchor not in weak_anchors:
-                weak_anchors.append(anchor)
-        elif score > 0.85:
-            strong_items.append(f"{d.get('dimension','?')}: {score:.2f}")
-
-    return {
-        "overall_score": results.get("overall_score", 0),
-        "grade": results.get("grade", "?"),
-        "problem_type": ptype,
-        "weak_areas": weak_items,
-        "strong_areas": strong_items,
-        "weak_anchors": weak_anchors,
-        "improvements": results.get("improvements", []),
-        "hint_for_claude": (
-            "请读取 sessions/{name}/ 下的代码和论文，结合以上弱项分析，"
-            "用自然语言总结经验并写入 role 文档对应锚点。"
-            "写作指引: ①做了什么 ②为什么低分 ③下次怎么做。简短即可，100-200字。"
-        ),
-    }
 
 
 # ═══════════════════════════════════════════════════════════════

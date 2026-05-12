@@ -311,13 +311,13 @@ The scorer (`tools/evolution/scorer.py`) evaluates the paper on 10 dimensions:
 | `abstract_quality` | 0.12 | Abstract length + 5-segment structure + quantitative results |
 | `structure_completeness` | 0.10 | Section count + assumptions list + notation table |
 | `visual_richness` | 0.10 | Figure count + table count |
-| `verification_complete` | 0.15 | Verification report presence + pass rate |
-| `formula_rigor` | 0.12 | Equation count + LaTeX math usage |
-| `sensitivity_depth` | 0.12 | Sensitivity analysis section + perturbation range |
-| `model_diversity` | 0.10 | Number of distinct model types used |
+| `verification_complete` | 0.20 | Solver-verify pair ratio + indicator diversity (assert/rmse/r2 etc.) |
+| `formula_rigor` | 0.10 | Equation count + LaTeX math usage |
+| `sensitivity_depth` | 0.10 | Sensitivity analysis section + perturbation range |
+| `model_diversity` | 0.08 | Number of distinct model types used |
 | `academic_norm` | 0.08 | Reference count + citation format |
-| `ai_flavor_score` | 0.06 | AI-writing markers detected (40+ patterns) |
-| `cross_ref_quality` | 0.05 | Cross-reference between sections |
+| `code_documentation` | 0.06 | README presence + code comments + data checks |
+| `ai_flavor_penalty` | 0.06 | AI-writing markers detected (40+ patterns, lower=better) |
 
 Each dimension scored against dual baselines:
 - **vs_paper_pct**: vs 319 awarded papers (static, from batch PDF extraction)

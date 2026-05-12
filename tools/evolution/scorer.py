@@ -70,7 +70,7 @@ DIMENSIONS = {
     "structure_completeness": {"weight": 0.10, "desc": "结构完整性(章节数+假设+符号表)"},
     "visual_richness":       {"weight": 0.10, "desc": "视觉丰富度(图+表)"},
     "formula_rigor":         {"weight": 0.10, "desc": "公式严谨性(数量+编号+出处)"},
-    "verification_complete": {"weight": 0.20, "desc": "验证完整度(每solver有verify+指标多样性)"},
+    "verification_complete": {"weight": 0.20, "desc": "验证覆盖度(verifysolver配对率+指标多样性)。不运行验证脚本——检查文件存在性和代码质量"},
     "sensitivity_depth":     {"weight": 0.10, "desc": "灵敏度深度(定量+多参数+图表)"},
     "model_diversity":       {"weight": 0.08, "desc": "模型多样性(多方案对比+不同家族)"},
     "academic_norm":         {"weight": 0.08, "desc": "学术规范(引用+语言+格式)"},
@@ -334,7 +334,52 @@ def score_session(root: Path, session_name: str, mode: str = "standard",
         "improvements": improvements,
         "vs_paper_pct": paper_pct,
         "vs_self_pct": self_pct,
-        "baseline_source": "91篇CUMCM获奖论文(2023-2025) + MCM/ICM O奖论文",
+        "baseline_source": "319篇获奖论文统计基线 (batch_extract.py)",
+        "analysis": _build_analysis(details, overall, grade, problem_type, improvements),
+    }
+
+
+# 评分维度→论文手章节锚点
+WRITING_DIM_MAP = {
+    "abstract_quality": "WRITING_ABSTRACT",
+    "structure_completeness": "WRITING_SOLUTION",
+    "visual_richness": "WRITING_VISUALS",
+    "formula_rigor": "WRITING_MODELING",
+    "verification_complete": "WRITING_SOLUTION",
+    "sensitivity_depth": "WRITING_SENSITIVITY",
+    "model_diversity": "WRITING_MODELING",
+    "academic_norm": "WRITING_REFERENCES",
+    "ai_flavor_penalty": "WRITING_STYLE",
+}
+
+
+def _build_analysis(details, overall, grade, ptype, improvements):
+    """构建结构化分析(供 Claude 写经验时参考)——在 scorer 中完成"""
+    weak_items = []
+    strong_items = []
+    weak_anchors = []
+    for d in details:
+        s = d.get("score", 1.0)
+        if s < 0.65:
+            weak_items.append(f"{d.get('dimension','?')}: {s:.2f} — {d.get('desc','')}")
+            anchor = WRITING_DIM_MAP.get(d.get("dimension", ""))
+            if anchor and anchor not in weak_anchors:
+                weak_anchors.append(anchor)
+        elif s > 0.85:
+            strong_items.append(f"{d.get('dimension','?')}: {s:.2f}")
+
+    return {
+        "overall_score": overall,
+        "grade": grade,
+        "problem_type": ptype,
+        "weak_areas": weak_items,
+        "strong_areas": strong_items,
+        "weak_anchors": weak_anchors,
+        "improvements": improvements,
+        "hint_for_claude": (
+            "读 sessions/{name}/ 代码+论文，按弱项分析总结100-200字经验"
+            "写入role对应锚点: ①做了什么 ②为什么低分 ③下次怎么做"
+        ),
     }
 
 
