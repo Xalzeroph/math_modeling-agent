@@ -25,32 +25,27 @@ mkdir -p sessions/题目名称/{data,notes,solvers,verifications,figures,paper}
 ## Architecture / 架构
 
 ```
-                    ┌──────────────────────────────────────┐
-                    │            CLAUDE CODE               │
-                    │    (Brain: reasoning, coding,        │
-                    │     writing, decision-making)        │
-                    └──────────┬───────────────────────────┘
-                               │
-         ┌─────────────────────┼─────────────────────┐
-         │                     │                     │
-    ┌────▼────┐          ┌─────▼─────┐         ┌────▼────┐
-    │  Roles   │          │ Knowledge │         │  Tools   │
-    │ (guides) │          │ (assets)  │         │ (do what │
-    │          │          │           │         │ Claude   │
-    │ 建模手    │          │ algorithms│         │ cannot)  │
-    │ 编程手    │          │ papers    │         │          │
-    │ 论文手    │          │ rules     │         │ file_ops │
-    │          │          │ baselines │         │ search   │
-    └─────────┘          │ templates │         │ evolution│
-                         └───────────┘         └─────────┘
+L1: Claude Code (大脑)
+   推理、决策、代码生成、论文写作、对话上下文
+       │
+   ┌───┼───┐
+   │       │       │
+L2: 指引层  L3: 知识层   L4: 工具层
+(行为规范)  (结构化数据)  (确定性操作)
+   │       │       │
+SOP.md     algorithms/  file_ops/
+CLAUDE.md  references/  search/
+roles/*.md sessions/    evolution/
 ```
 
-Three pillars, one brain:
-- **Roles** — 2500+ lines of detailed workflow docs for each role (Modeler, Coder, Writer). Claude reads them to switch personas. Each document has `EVOLUTION` anchor sections where experience accumulates automatically.
-- **Knowledge** — 74-method algorithm library with 46 cross-references, 1330 indexed papers in 6 categories/28 subcategories, 39 antipatterns, 10-dimension empirical scoring baselines, LaTeX templates.
-- **Tools** — 8 Python CLI tools that do things Claude Code CANNOT: compile LaTeX, search academic APIs, provide synonym-mapped local knowledge retrieval, deterministic data checking, output integrity verification.
+L1 reads L2 to know HOW to act (SOP, role specs, checklists, constraints).
+L1 reads L3 to know WHAT is available (algorithms, papers, baselines, past experience).
+L1 calls L4 to do what it CANNOT (compile, search APIs, score, evolve markers).
+L4 writes back to L3 (eval_report.json, evolved_status, verified algorithms).
 
----
+Core principle: **Python = mechanical work (deterministic, Claude cannot do). Claude Code = insight work (understanding, judgment, writing). Give Claude better information, don't code Claude's decisions.**
+
+核心原则：**Python 做机械活（确定性的，Claude 做不到的）。Claude Code 做洞见活（理解、判断、写作）。给 Claude 更好的信息，而不是替 Claude 做决策。
 
 ## 10-Stage SOP / 10 阶段流程
 
@@ -271,30 +266,32 @@ The evolution cycle is split into two parts: **mechanical work** (Python) and **
 | # | Mechanism / 机制 | Action / 动作 |
 |---|-----------------|--------------|
 | 1 | Update / 更新 | Update verified algorithms table in `roles/建模手.md` |
-| 2 | Mark / 标记 | Tag verified algorithms in `algorithms/*.md` + update `index.json` evolved_status |
-| 3 | Analyze / 分析 | Produce structural score analysis (weak areas, strong areas, writing anchors to improve) |
+| 2 | Mark / 标记 | Tag verified algorithms in `algorithms/*.md` |
+| 3 | Dynamic Graph / 动态图谱 | Append usage record `{date, session, type, score}` to `index.json` evolved_status array |
+| 4 | Analyze / 分析 | Produce structural score analysis (weak/strong areas, writing anchors) |
 
 ### Insight Work (Claude Code)
 
-After mechanical work produces the `analysis` JSON:
-1. Read `sessions/{name}/eval_report.json` — full scoring breakdown
-2. Read `sessions/{name}/notes/` — modeling thought process
-3. Read `sessions/{name}/solvers/` + `verifications/` — implementation details
-4. Write **100-200 word experience summaries** to role doc sub-anchors:
-   - Modeler: `<!-- EVOLUTION:MODEL_<type> -->` — what worked, what didn't, why
-   - Coder: `<!-- EVOLUTION:CODE_<type> -->` — reusable patterns, parameter tips
-   - Writer: `<!-- EVOLUTION:WRITING_<chapter> -->` — where scoring was weak, how to improve
+读 evolver 的 `analysis` JSON → 读 session 代码/笔记/论文 → 在 role 子锚点写 100-200 字经验总结
 
-### Structured Sub-Anchors
+### Dual Baseline Scoring (scorer.py)
 
-**Modeler (9 anchors by problem type):**
-`MODEL_OPTIMIZATION`, `MODEL_EVALUATION`, `MODEL_PREDICTION`, `MODEL_NETWORK`, `MODEL_STATISTICS`, `MODEL_SIMULATION`, `MODEL_MACHINE_LEARNING`, `MODEL_COMMON_PRACTICES`, `MODEL_COMPETITION_DIFFERENCES`
+每个维度同时输出两个百分位对比：
+- **vs_paper_pct**: vs 319 篇获奖论文统计基线（固定）
+- **vs_self_pct**: vs 自身同类型历史 session（动态积累）
 
-**Writer (17 anchors by paper chapter):**
-`WRITING_TITLE`, `WRITING_ABSTRACT`, `WRITING_RESTATEMENT`, `WRITING_PROBLEM_ANALYSIS`, `WRITING_ASSUMPTIONS`, `WRITING_NOTATION`, `WRITING_MODELING`, `WRITING_SOLUTION`, `WRITING_RESULTS`, `WRITING_SENSITIVITY`, `WRITING_EVALUATION`, `WRITING_REFERENCES`, `WRITING_VISUALS`, `WRITING_STYLE`, `WRITING_AI_DECLARATION`, `WRITING_QUANTITATIVE`, `WRITING_LESSONS`
+baselines.json 含 `usage_rules` 规定评分后的决策分支：退步→写原因、弱项→读论文手章节做改进、超p75→记成功模式。
 
-**Coder (7 anchors by algorithm type):**
-`CODE_OPTIMIZATION`, `CODE_EVALUATION`, `CODE_PREDICTION`, `CODE_NETWORK`, `CODE_STATISTICS`, `CODE_SIMULATION`, `CODE_ML`
+### Algorithm Selection Constraints (index.json)
+
+`selection_rules` 规定算法选择流程：优先 evolved_status 不为空 → 最高分 → 最近使用。无已验证时标"需复核"。选定后必须通读对应 .md 文档。
+
+### Structured Sub-Anchors (40 total)
+
+**Modeler (9):** MODEL_OPTIMIZATION through MODEL_COMPETITION_DIFFERENCES
+**Writer (17):** WRITING_TITLE through WRITING_LESSONS
+**Coder (7):** CODE_OPTIMIZATION through CODE_ML
+**Plus:** EXPERIENCES, LESSONS, VERIFIED_ALGORITHMS, CODE_TEMPLATES, PITFALLS, PAPER_TEMPLATES, EXPRESSIONS
 
 ### Query Commands
 
@@ -322,7 +319,11 @@ The scorer (`tools/evolution/scorer.py`) evaluates the paper on 10 dimensions:
 | `ai_flavor_score` | 0.06 | AI-writing markers detected (40+ patterns) |
 | `cross_ref_quality` | 0.05 | Cross-reference between sections |
 
-Each dimension is scored against empirical baselines (`references/empirical_baselines.json`) with p25/p50/p75 percentiles. Problem-type-specific weights adjust the scoring (e.g., optimization tasks weight `model_diversity` ×1.4).
+Each dimension scored against dual baselines:
+- **vs_paper_pct**: vs 319 awarded papers (static, from batch PDF extraction)
+- **vs_self_pct**: vs own history of same problem type (dynamic, accumulates)
+
+Problem-type-specific weights adjust scoring. baselines.json `usage_rules` govern post-scoring decisions.
 
 Three speed modes:
 - `--mode fast` — Quick scan (no PDF)
