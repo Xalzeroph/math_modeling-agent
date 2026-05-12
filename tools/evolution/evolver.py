@@ -302,6 +302,20 @@ def _evolve_modeler(root, ptype, models, keywords, success, score, summary):
     mtypes = sorted(set(m.get("type", "?") for m in models))
     algos = sorted(set(a for m in models for a in m.get("algorithms", [])))
 
+    # 按题型映射到子锚点
+    MODEL_ANCHORS = {
+        "optimization": "MODEL_OPTIMIZATION",
+        "evaluation": "MODEL_EVALUATION",
+        "prediction": "MODEL_PREDICTION",
+        "network": "MODEL_NETWORK",
+        "statistics": "MODEL_STATISTICS",
+        "ode": "MODEL_SIMULATION",
+        "simulation": "MODEL_SIMULATION",
+        "classification": "MODEL_MACHINE_LEARNING",
+    }
+    anchor = MODEL_ANCHORS.get(ptype, "MODEL_COMMON_PRACTICES")
+    marker = f"<!-- EVOLUTION:{anchor} -->"
+
     if success:
         exp = f"### {_now()} — {summary[:60]}\n\n"
         exp += f"- **题型**: {ptype}\n"
@@ -309,8 +323,8 @@ def _evolve_modeler(root, ptype, models, keywords, success, score, summary):
         exp += f"- **算法**: {', '.join(algos)}\n"
         exp += f"- **标签**: {', '.join(keywords[:5])}\n"
         exp += f"- **得分**: {score}\n"
-        if _append_to_section(role_file, "<!-- EVOLUTION:EXPERIENCES -->", exp):
-            changes.append("建模手: 追加经验")
+        if _append_to_section(role_file, marker, exp):
+            changes.append(f"建模手: 追加经验到 {anchor}")
     else:
         lesson = f"### {_now()} — {summary[:60]}\n\n"
         lesson += f"- **题型**: {ptype}\n"
