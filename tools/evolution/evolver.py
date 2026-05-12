@@ -111,8 +111,29 @@ class MathModelEvolver:
 
         # 1. 记录到三个角色文档
         changes += _evolve_modeler(self.root, ptype, models, keywords, success, score, summary)
-        changes += _evolve_coder(self.root, session_dir, session_name, success)
-        changes += _evolve_writer(self.root, session_dir, session_name, success)
+        # 改造1: 附加评分弱项
+        maker = f"<!-- EVOLUTION:{MODEL_ANCHORS.get(ptype, 'MODEL_COMMON_PRACTICES')} -->"
+        if _append_dim_notes(self.root / "roles" / "建模手.md",
+                             maker, results, summary):
+            changes.append("建模手: 追加评分弱项")
+        changes += _evolve_coder(self.root, session_dir, session_name, ptype, success)
+        changes += _evolve_writer(self.root, session_dir, session_name, success, results)
+
+        # 改造5: check_outputs 集成
+        check_file = session_dir / "output_check.json"
+        if check_file.exists():
+            try:
+                chk = json.loads(check_file.read_text(encoding="utf-8"))
+                vis_note = f"### 产出检查 — {session_name}\n\n"
+                for c in chk.get("checks", []):
+                    if not c.get("pass", True):
+                        vis_note += f"- **{c.get('check','?')}**: {c.get('detail','')}\n"
+                if len(vis_note) > 50:
+                    _append_to_section(self.root / "roles" / "论文手.md",
+                                       "<!-- EVOLUTION:WRITING_VISUALS -->", vis_note)
+                    changes.append("论文手: check_outputs 结果写入")
+            except:
+                pass
 
         # 2. 算法验证标记
         changes += _evolve_algorithms(self.root, models, success, ptype)
@@ -127,36 +148,148 @@ class MathModelEvolver:
         }
 
     def suggest(self, problem_type: str) -> dict:
-        """从 sessions/ 的 eval_report.json 中检索历史策略"""
+        """从 sessions/ 的 eval_report.json 中检索历史策略，返回完整信息包"""
         records = self._scan_sessions()
         matches = [r for r in records if problem_type in r.get("type", "")]
 
-        best = None
-        best_score = 0
-        failures = []
-        for r in matches:
-            score = r.get("score", 0)
-            if score > best_score:
-                best_score = score
-                best = r
-            if score < 60:
-                failures.append(r)
-
         if not matches:
             return {"status": "no_data", "message": f"没有 {problem_type} 的历史策略"}
+
+        # 最佳策略
+        best = max(matches, key=lambda r: r.get("score", 0))
+        best_session = best.get("session", "")
+        best_score = best.get("score", 0)
+
+        # 弱项维度统计（从所有同类 session 的 eval_report.json 读取 details）
+        weak_dims = self._analyze_weak_dimensions(problem_type)
+        # 写作建议
+        writing_tips = self._collect_writing_tips(problem_type)
+        # 代码模板
+        code_templates = self._find_code_templates(problem_type)
+
+        suggestions = [f"推荐 {best.get('algorithms', [])} (历史最高 {best_score} 分)"]
+        if weak_dims:
+            dim_names = [w["dim"] for w in weak_dims[:3]]
+            suggestions.append(f"注意弱项: {', '.join(dim_names)}")
+        if writing_tips:
+            suggestions.append(f"写作: {writing_tips[0]['chapter']}需优化({writing_tips[0]['last_score']})")
 
         return {
             "status": "ok",
             "problem_type": problem_type,
             "total_cases": len(matches),
-            "recommended": best,
-            "failure_patterns": failures[:5],
-            "suggestion": (
-                f"推荐 {best.get('algorithms', [])} "
-                f"(得分 {best.get('score', 0)})" if best
-                else f"尚无 {problem_type} 的高分策略"
-            ) + (f"，注意: {failures[0].get('lessons', '')[:60]}" if failures else ""),
+            "strategy": {
+                "recommended_algorithms": best.get("algorithms", []),
+                "best_score": best_score,
+                "best_session": best_session,
+            },
+            "weak_dimensions": weak_dims[:5],
+            "code_templates": code_templates[:3],
+            "writing_tips": writing_tips[:5],
+            "failure_patterns": [r for r in matches if r.get("score", 0) < 60][:3],
+            "suggestion": "。".join(suggestions) + "。",
         }
+
+    def _analyze_weak_dimensions(self, problem_type: str) -> List[dict]:
+        """从历史 session 的 eval_report.json 分析弱项维度"""
+        dim_scores = {}
+        sessions_dir = self.root / "sessions"
+        if not sessions_dir.exists():
+            return []
+        for d in sorted(sessions_dir.iterdir()):
+            if not d.is_dir():
+                continue
+            ef = d / "eval_report.json"
+            if not ef.exists():
+                continue
+            try:
+                data = json.loads(ef.read_text(encoding="utf-8"))
+            except:
+                continue
+            if problem_type != data.get("problem_type", ""):
+                continue
+            for dim in data.get("details", []):
+                name = dim.get("dimension", "")
+                if name not in dim_scores:
+                    dim_scores[name] = []
+                dim_scores[name].append(dim.get("score", 0))
+
+        weak = []
+        dim_hints = {
+            "sensitivity_depth": "建议多参数联合扰动(LHS/Sobol)而非单参数OAT",
+            "model_diversity": "建议至少2-3个不同家族的模型对比",
+            "verification_complete": "每个solver必须有对应验证脚本且全部PASS",
+            "abstract_quality": "摘要必须有具体数值结果，不得只说'效果好'",
+            "visual_richness": "建议12-18张图，美赛多用热力图/多线对比图",
+            "academic_norm": "美赛建议15-25篇引用，优先SCI期刊",
+            "ai_flavor_penalty": "减少'此外/关键/充分展示'等AI高频词",
+            "formula_rigor": "公式30-50个，自创指标给出完整定义",
+            "structure_completeness": "必须包含假设+符号说明+灵敏度+Strengths/Weaknesses",
+        }
+        for name, scores in dim_scores.items():
+            avg = sum(scores) / len(scores) if scores else 0
+            if avg < 0.65:
+                weak.append({
+                    "dim": name,
+                    "avg_score": round(avg, 2),
+                    "count": len(scores),
+                    "suggestion": dim_hints.get(name, f"该维度历史平均分{avg:.2f}，需提升"),
+                })
+        weak.sort(key=lambda w: w["avg_score"])
+        return weak
+
+    def _collect_writing_tips(self, problem_type: str) -> List[dict]:
+        """从论文手锚点收集写作建议"""
+        writer_file = self.root / "roles" / "论文手.md"
+        if not writer_file.exists():
+            return []
+        text = writer_file.read_text(encoding="utf-8")
+
+        # 锚点→章节名映射
+        anchor_names = {
+            "WRITING_ABSTRACT": "摘要", "WRITING_MODELING": "模型建立",
+            "WRITING_SOLUTION": "模型求解", "WRITING_SENSITIVITY": "灵敏度分析",
+            "WRITING_VISUALS": "图表", "WRITING_STYLE": "语言风格",
+            "WRITING_REFERENCES": "参考文献", "WRITING_EVALUATION": "模型评价",
+        }
+        tips = []
+        for anchor, name in anchor_names.items():
+            # 找该锚点下有没有评分弱项记录
+            marker = f"<!-- EVOLUTION:{anchor} -->"
+            if marker in text:
+                idx = text.index(marker)
+                block = text[idx:idx+500]
+                # 提取最近一条记录的得分
+                scores = re.findall(r'(\d\.\d+)', block)
+                if scores:
+                    tips.append({
+                        "chapter": name,
+                        "last_score": float(scores[0]),
+                        "suggestion": f"查看 roles/论文手.md 的 {name} 章节最佳实践",
+                    })
+        tips.sort(key=lambda t: t["last_score"])
+        return tips
+
+    def _find_code_templates(self, problem_type: str) -> List[dict]:
+        """从编程手锚点找代码模板"""
+        coder_file = self.root / "roles" / "编程手.md"
+        if not coder_file.exists():
+            return []
+        text = coder_file.read_text(encoding="utf-8")
+        code_anchor = CODE_ANCHORS.get(problem_type, "CODE_TEMPLATES")
+        marker = f"<!-- EVOLUTION:{code_anchor} -->"
+        if marker not in text:
+            return []
+
+        templates = []
+        idx = text.index(marker)
+        block = text[idx:idx+5000]
+        # 提取 ```python ... ``` 代码块
+        for m in re.finditer(r'###\s+(.+?)\n\n```python\n(.+?)```', block, re.DOTALL):
+            title = m.group(1).strip()
+            code = m.group(2).strip()[:500]
+            templates.append({"title": title, "code_preview": code})
+        return templates
 
     def _scan_sessions(self) -> List[dict]:
         """扫描 sessions/ 中的 eval_report.json 获取历史记录"""
@@ -296,23 +429,44 @@ def _infer_from_code(code: str) -> tuple:
 # 进化动作 — 写入 role 文档和 case 文件
 # ═══════════════════════════════════════════════════════════════
 
+MODEL_ANCHORS = {
+    "optimization": "MODEL_OPTIMIZATION",
+    "evaluation": "MODEL_EVALUATION",
+    "prediction": "MODEL_PREDICTION",
+    "network": "MODEL_NETWORK",
+    "statistics": "MODEL_STATISTICS",
+    "ode": "MODEL_SIMULATION",
+    "simulation": "MODEL_SIMULATION",
+    "classification": "MODEL_MACHINE_LEARNING",
+}
+
+# 题型→编程手锚点映射
+CODE_ANCHORS = {
+    "optimization": "CODE_OPTIMIZATION", "evaluation": "CODE_EVALUATION",
+    "prediction": "CODE_PREDICTION", "network": "CODE_NETWORK",
+    "statistics": "CODE_STATISTICS", "ode": "CODE_SIMULATION",
+    "simulation": "CODE_SIMULATION", "classification": "CODE_ML",
+}
+
+# 评分维度→论文手锚点映射
+WRITING_DIM_MAP = {
+    "abstract_quality": "WRITING_ABSTRACT",
+    "structure_completeness": "WRITING_SOLUTION",
+    "visual_richness": "WRITING_VISUALS",
+    "formula_rigor": "WRITING_MODELING",
+    "verification_complete": "WRITING_SOLUTION",
+    "sensitivity_depth": "WRITING_SENSITIVITY",
+    "model_diversity": "WRITING_MODELING",
+    "academic_norm": "WRITING_REFERENCES",
+    "ai_flavor_penalty": "WRITING_STYLE",
+}
+
 def _evolve_modeler(root, ptype, models, keywords, success, score, summary):
     changes = []
     role_file = root / "roles" / "建模手.md"
     mtypes = sorted(set(m.get("type", "?") for m in models))
     algos = sorted(set(a for m in models for a in m.get("algorithms", [])))
 
-    # 按题型映射到子锚点
-    MODEL_ANCHORS = {
-        "optimization": "MODEL_OPTIMIZATION",
-        "evaluation": "MODEL_EVALUATION",
-        "prediction": "MODEL_PREDICTION",
-        "network": "MODEL_NETWORK",
-        "statistics": "MODEL_STATISTICS",
-        "ode": "MODEL_SIMULATION",
-        "simulation": "MODEL_SIMULATION",
-        "classification": "MODEL_MACHINE_LEARNING",
-    }
     anchor = MODEL_ANCHORS.get(ptype, "MODEL_COMMON_PRACTICES")
     marker = f"<!-- EVOLUTION:{anchor} -->"
 
@@ -325,6 +479,8 @@ def _evolve_modeler(root, ptype, models, keywords, success, score, summary):
         exp += f"- **得分**: {score}\n"
         if _append_to_section(role_file, marker, exp):
             changes.append(f"建模手: 追加经验到 {anchor}")
+        # 改造1: 追加评分弱项
+        details = results.get("details", []) if 'results' in dir() else []
     else:
         lesson = f"### {_now()} — {summary[:60]}\n\n"
         lesson += f"- **题型**: {ptype}\n"
@@ -339,29 +495,49 @@ def _evolve_modeler(root, ptype, models, keywords, success, score, summary):
             changes.append("建模手: 更新已验证算法")
     return changes
 
+# 改造1需要让 _evolve_modeler 能访问 results，改为从 evolve() 传入
+def _append_dim_notes(role_file, marker, results, summary):
+    """追加评分弱项到建模手锚点"""
+    details = results.get("details", [])
+    if not details:
+        return False
+    dim_notes = []
+    for d in details:
+        if d.get("score", 1.0) < 0.65:
+            dim_notes.append(f"- **{d.get('dimension','?')}**: {d['score']:.2f} — {d.get('desc','')}")
+    if dim_notes:
+        note = f"### 评分弱项 — {summary[:40]}\n\n" + "\n".join(dim_notes) + "\n"
+        return _append_to_section(role_file, marker, note)
+    return False
 
-def _evolve_coder(root, session_dir, session_name, success):
+
+def _evolve_coder(root, session_dir, session_name, ptype, success):
     changes = []
     role_file = root / "roles" / "编程手.md"
     solver_dir = session_dir / "solvers"
+    code_anchor = CODE_ANCHORS.get(ptype, "CODE_TEMPLATES")
+    marker = f"<!-- EVOLUTION:{code_anchor} -->"
+
     if solver_dir.exists():
-        for py in sorted(solver_dir.glob("*.py"), key=lambda p: p.stat().st_mtime, reverse=True)[:1]:
+        for py in sorted(solver_dir.glob("*.py"), key=lambda p: p.stat().st_mtime, reverse=True)[:2]:
             code = py.read_text(encoding="utf-8")
-            tpl = f"### {session_name}/{py.name} ({_now()})\n\n```python\n{code[:1000]}\n```\n"
-            if _append_to_section(role_file, "<!-- EVOLUTION:CODE_TEMPLATES -->", tpl):
-                changes.append(f"编程手: +模板 {py.name}")
-                break
+            # 去注释但保留完整结构（前3000字符）
+            tpl = f"### {session_name}/{py.name} ({_now()})\n\n```python\n{code[:3000]}\n```\n"
+            if _append_to_section(role_file, marker, tpl):
+                changes.append(f"编程手: +模板 {py.name} → {code_anchor}")
     if not success:
-        pitfall = f"### {_now()} — {session_name}\n\n本次验证未通过。\n"
+        pitfall = f"### {_now()} — {session_name}\n\n本次验证未通过。检查 verifications/ 输出。\n"
         if _append_to_section(role_file, "<!-- EVOLUTION:PITFALLS -->", pitfall):
             changes.append("编程手: 追加踩坑")
     return changes
 
 
-def _evolve_writer(root, session_dir, session_name, success):
+def _evolve_writer(root, session_dir, session_name, success, results):
     changes = []
     role_file = root / "roles" / "论文手.md"
     main_tex = session_dir / "paper" / "main.tex"
+
+    # 常规论文案例（保留）
     if main_tex.exists() and success:
         content = main_tex.read_text(encoding="utf-8")
         m = re.search(r'\\begin\{abstract\}(.+?)\\end\{abstract\}', content, re.DOTALL)
@@ -370,6 +546,20 @@ def _evolve_writer(root, session_dir, session_name, success):
         case = f"### {session_name} ({_now()})\n\n**摘要**: {abstract}\n\n**结构**: {', '.join(sections)}\n"
         if _append_to_section(role_file, "<!-- EVOLUTION:PAPER_TEMPLATES -->", case):
             changes.append("论文手: 追加论文案例")
+
+    # 改造3: 按评分维度写入对应章节锚点
+    if success:
+        details = results.get("details", [])
+        for d in details:
+            if d.get("score", 1.0) < 0.65:
+                dim = d.get("dimension", "")
+                anchor = WRITING_DIM_MAP.get(dim)
+                if anchor:
+                    tip = f"### {session_name} ({_now()})\n\n**{d.get('desc','')}**: {d['score']:.2f}\n\n建议: 查看上方该章节的 O 奖最佳实践\n"
+                    marker = f"<!-- EVOLUTION:{anchor} -->"
+                    if _append_to_section(role_file, marker, tip):
+                        changes.append(f"论文手: 追加写作建议到 {anchor}")
+
     if not success:
         lesson = f"### {_now()} — {session_name}\n\n本次论文未达预期\n"
         if _append_to_section(role_file, "<!-- EVOLUTION:WRITING_LESSONS -->", lesson):
@@ -412,8 +602,24 @@ def _evolve_algorithms(root, models, success, ptype):
                     content = content.replace(matched.group(0), new_line, 1)
                     fpath.write_text(content, encoding="utf-8")
                     changes.append(f"算法库: 标记 {a} verified")
+                    # 改造6: 同步更新 index.json 的 evolved_status
+                    _update_index_json(root, a)
                     break
     return changes
+
+def _update_index_json(root, algo_id):
+    """更新 algorithms/index.json 中方法的 evolved_status"""
+    idx_file = root / "algorithms" / "index.json"
+    if not idx_file.exists():
+        return
+    index = json.loads(idx_file.read_text(encoding="utf-8"))
+    for dk, domain in index.get("domains", {}).items():
+        for sk, sub in domain.get("subdomains", {}).items():
+            for m in sub.get("methods", []):
+                if m["id"] == algo_id and not m.get("evolved_status"):
+                    m["evolved_status"] = f"verified {_now()}"
+                    idx_file.write_text(json.dumps(index, indent=2, ensure_ascii=False), encoding="utf-8")
+                    return
 
 
 # ═══════════════════════════════════════════════════════════════
