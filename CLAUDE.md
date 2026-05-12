@@ -28,16 +28,42 @@ tags: [math, modeling, cumcm, mcm, self-evolving, python]
 
 没有脚本流水线。对话就是流水线。用户就是 Checkpoint。
 
-## 开始建模
+## 开始建模 — 必须做的事
 
 用户只需做一件事：
 1. 告诉你题目名称，把题目 PDF 和数据文件给你
 
-然后你（Claude Code）做的第一件事——创建完整的 session 目录结构：
+你做的第一件事：
 ```bash
 mkdir -p sessions/题目名称/{data,notes,solvers,verifications,figures,paper}
-# 把用户给的 PDF 和数据文件放进 sessions/题目名称/data/
 ```
+
+## 启动自检清单（每次开始新题必须逐项完成）
+
+在进入 SOP 阶段 1 之前，你必须完成以下自检。**缺一项则不能开始分析**：
+
+- [ ] 已读 `algorithms/index.json`，已确认 74 种方法的 `selection_rules`
+- [ ] 已用 `python tools/evolution/evolver.py suggest --problem-type <推断题型>` 查历史策略
+- [ ] 已用 `python tools/search/local_knowledge.py "<关键词>"` 检索本地知识
+- [ ] 已创建 `sessions/题目名称/` 完整目录结构
+- [ ] 已将用户提供的 PDF 和数据文件放入 `sessions/题目名称/data/`
+- [ ] 已读 `roles/建模手.md`，准备建模手身份
+
+## 算法选择约束（贯穿全程）
+
+读 `algorithms/index.json` 选择算法时，必须遵守 `selection_rules`：
+1. **优先选 evolved_status 不为空的** → 看历史验证记录中的 score 最高者
+2. 若无已验证算法 → 选 `apply` 字段匹配当前题型的 → 标记为"首次使用，求解后需人工复核"
+3. 选定后 → **必须**阅读对应 `algorithms/*.md` 文档中该方法的完整章节
+4. 禁止只看 index.json 的 method name 就直接用——必须读完 .md 文档
+
+## 基线数据使用约束
+
+评分后，必须对照 `references/empirical_baselines.json` 的 `usage_rules`：
+- 如果 vs_self_pct < 50% → 退步，在经验区写退步原因
+- 如果某维度 < 0.65 → 对照 ref_dim_map 读论文手对应章节，写改进方案
+- 如果所有维度 > p75 → 记录成功模式
+- 如果总分高于自身历史最佳 → 标记为 milestone
 
 之后阶段的产出：
   `notes/题目分析.md` → `solvers/problem{n}.py` → `verifications/verify{n}.py`

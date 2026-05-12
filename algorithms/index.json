@@ -1,6 +1,12 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "description": "三级算法知识库索引 — 题型→领域→子领域→方法节点。遵循 LLM-MM-Agent HMML 模式。",
+  "selection_rules": {
+    "order": "evolved_status 不为空 → evolved_status.score 最高 → 最近 date",
+    "on_no_verified": "选择 apply 字段匹配当前题型的方法，标记为'未验证—求解后必须人工复核'",
+    "on_multiple_candidates": "对比各方法的 package 和 apply 字段，优先选 package 成熟度高的",
+    "require_read": "选择方法后，必须阅读对应 algorithms/*.md 文档中该方法的完整章节，不可跳过"
+  },
   "domains": {
     "optimization": {
       "name": "优化与规划",
