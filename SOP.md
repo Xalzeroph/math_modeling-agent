@@ -188,11 +188,25 @@ python tools/evolution/scorer.py --session "题目名称" --mode standard
 ```
 10 维度打分，基于经验基线。评分结果自动保存到 `sessions/题目名称/eval_report.json`。
 
-**进化**：
+**进化（机械活 — evolver 自动完成）**：
 ```bash
 python tools/evolution/evolver.py evolve --session "题目名称" --from-scorer
 ```
-自动读取评分结果，更新 roles/、algorithms/。
+自动做的事：更新建模手已验证算法表、标记算法库 .md + index.json、产出结构化评分分析。
+
+**进化（洞见活 — Claude Code 完成）**：
+读 evolver 返回的 `analysis` 字段（含 weak_areas/strong_areas/weak_anchors），然后：
+1. 读 `sessions/题目名称/eval_report.json` 了解评分全貌
+2. 读 `sessions/题目名称/notes/` 了解建模思路
+3. 读 `sessions/题目名称/solvers/` 和 `verifications/` 了解实现细节
+4. **在 role 文档的对应锚点下写一段 100-200 字的经验总结**：
+   - 这次做了什么（题型+算法+思路）
+   - 哪里低分、为什么（从 analysis.weak_areas 获取）
+   - 下次怎么做（具体可操作的建议）
+5. 写入目标锚点：
+   - 建模手：`<!-- EVOLUTION:MODEL_<题型> -->`（如 MODEL_OPTIMIZATION）
+   - 编程手：`<!-- EVOLUTION:CODE_<题型> -->`（如 CODE_OPTIMIZATION）
+   - 论文手：analysis.weak_anchors 中列出的锚点
 
 **跟用户讨论**：评分结果、经验总结、哪些地方可以改进。
 
