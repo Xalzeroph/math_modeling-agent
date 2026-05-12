@@ -117,35 +117,37 @@ Problem Analysis → Model Selection & Scaffolding → Data Preprocessing
 
 ---
 
-## 8 Tools / 8 个工具
+## 9 Tools / 9 个工具
 
-All tools produce JSON to stdout. Claude Code calls them, reads the JSON, and acts on it.
+Python = 机械活 (确定性的，Claude 做不到), Claude Code = 洞见活 (需要理解和判断)
 
 | Category / 类别 | Tool / 工具 | Purpose / 用途 | When / 时机 |
 |----------------|------------|---------------|------------|
 | **File Ops** | `file_ops/compile_latex.py` | Compile .tex to .pdf (xelatex/pdflatex multi-pass) | Stage 8 |
-| | `file_ops/pdf_extractor.py` | Extract text and tables from PDFs | When reading problem PDFs or paper tables |
+| | `file_ops/pdf_extractor.py` | Extract text and tables from PDFs | Reading problem PDFs |
 | | `file_ops/data_checker.py` | Deterministic encoding detection + data quality report | Stage 3 |
-| | `file_ops/check_outputs.py` | Post-compile integrity check (encoding, figure refs, solver-verify pairs, PDF page count) | Stage 8 |
+| | `file_ops/check_outputs.py` | Post-compile integrity (encoding, figure refs, solver-verify pairs, pages) | Stage 8 |
+| | `file_ops/batch_extract.py` | Batch PDF stats extraction (pages, chars, figures, tables, equations) | Paper library analysis |
 | **Search** | `search/paper_search.py` | Multi-source academic search (arXiv + OpenAlex + Semantic Scholar) | Stage 1 |
-| | `search/local_knowledge.py` | Synonym-mapped local search (algorithms + papers + evolution experience) | Stage 1 |
-| **Evolution** | `evolution/scorer.py` | 10-dimension percentile scoring against empirical baselines. Auto-saves to `eval_report.json` | Stage 9 |
-| | `evolution/evolver.py` | Record experience to role docs + mark algorithms verified. `--from-scorer` reads scorer output automatically. `suggest`/`gaps` query historical patterns. | Stage 9 |
+| | `search/local_knowledge.py` | Synonym-mapped local search (algorithms + papers + evolution) | Stage 1 |
+| **Evolution** | `evolution/scorer.py` | 10-dim percentile scoring, auto-saves to `eval_report.json` | Stage 9 |
+| | `evolution/evolver.py` | Mechanical work: update verified algorithm tables, mark index.json, produce structural score analysis. Claude Code writes experiential insights to role docs. | Stage 9 |
 
 ### Tool Usage Flow / 工具调用流
 
 ```
-Stage 1:  local_knowledge.py "关键词"         → algorithm methods + matched papers + past scores
-          paper_search.py --query "..."       → external academic papers
-          evolver.py suggest --problem-type X → best historical strategy + failure patterns
+Stage 1:  local_knowledge.py "关键词"              → algorithms + papers + past scores
+          paper_search.py --query "..."            → external academic papers
+          evolver.py suggest --problem-type X      → best strategy + weak_dimensions
 
-Stage 3:  data_checker.py info --file ...     → deterministic encoding/format report
+Stage 3:  data_checker.py info --file ...          → deterministic encoding/format report
 
 Stage 8:  compile_latex.py compile --mode cumcm
-          check_outputs.py --session "..."    → encoding, figure refs, solver pairs, PDF pages
+          check_outputs.py --session "..."         → integrity checks
 
-Stage 9:  scorer.py --session "..." --mode standard   → scoring + auto-save eval_report.json
-          evolver.py evolve --session "..." --from-scorer → evolution
+Stage 9:  scorer.py --session "..." --mode standard  → scoring + auto-save eval_report.json
+          evolver.py evolve --session "..." --from-scorer  → mechanical work + analysis JSON
+          (then Claude Code reads analysis + session files, writes experience to role doc anchors)
 ```
 
 ---
@@ -262,26 +264,46 @@ E:\math_modeling\
 
 ## Evolution Engine Details / 进化引擎详解
 
-The evolver (`tools/evolution/evolver.py`) performs these actions when `evolve` is called:
+The evolution cycle is split into two parts: **mechanical work** (Python) and **insight work** (Claude Code).
+
+### Mechanical Work (Python — `evolver.py`)
 
 | # | Mechanism / 机制 | Action / 动作 |
 |---|-----------------|--------------|
-| 1 | Record / 记录 | Write experience/lesson to `roles/建模手.md` EVOLUTION sections |
-| 2 | Record / 记录 | Append latest solver code to `roles/编程手.md` CODE_TEMPLATES section |
-| 3 | Record / 记录 | Append paper abstract + section structure to `roles/论文手.md` PAPER_TEMPLATES section |
-| 4 | Mark / 标记 | Tag verified algorithms in `algorithms/*.md` with `<!-- EVOLVED: verified ... -->` |
-| 5 | Record / 记录 | Log pitfalls when verification fails |
+| 1 | Update / 更新 | Update verified algorithms table in `roles/建模手.md` |
+| 2 | Mark / 标记 | Tag verified algorithms in `algorithms/*.md` + update `index.json` evolved_status |
+| 3 | Analyze / 分析 | Produce structural score analysis (weak areas, strong areas, writing anchors to improve) |
 
-Query commands:
+### Insight Work (Claude Code)
+
+After mechanical work produces the `analysis` JSON:
+1. Read `sessions/{name}/eval_report.json` — full scoring breakdown
+2. Read `sessions/{name}/notes/` — modeling thought process
+3. Read `sessions/{name}/solvers/` + `verifications/` — implementation details
+4. Write **100-200 word experience summaries** to role doc sub-anchors:
+   - Modeler: `<!-- EVOLUTION:MODEL_<type> -->` — what worked, what didn't, why
+   - Coder: `<!-- EVOLUTION:CODE_<type> -->` — reusable patterns, parameter tips
+   - Writer: `<!-- EVOLUTION:WRITING_<chapter> -->` — where scoring was weak, how to improve
+
+### Structured Sub-Anchors
+
+**Modeler (9 anchors by problem type):**
+`MODEL_OPTIMIZATION`, `MODEL_EVALUATION`, `MODEL_PREDICTION`, `MODEL_NETWORK`, `MODEL_STATISTICS`, `MODEL_SIMULATION`, `MODEL_MACHINE_LEARNING`, `MODEL_COMMON_PRACTICES`, `MODEL_COMPETITION_DIFFERENCES`
+
+**Writer (17 anchors by paper chapter):**
+`WRITING_TITLE`, `WRITING_ABSTRACT`, `WRITING_RESTATEMENT`, `WRITING_PROBLEM_ANALYSIS`, `WRITING_ASSUMPTIONS`, `WRITING_NOTATION`, `WRITING_MODELING`, `WRITING_SOLUTION`, `WRITING_RESULTS`, `WRITING_SENSITIVITY`, `WRITING_EVALUATION`, `WRITING_REFERENCES`, `WRITING_VISUALS`, `WRITING_STYLE`, `WRITING_AI_DECLARATION`, `WRITING_QUANTITATIVE`, `WRITING_LESSONS`
+
+**Coder (7 anchors by algorithm type):**
+`CODE_OPTIMIZATION`, `CODE_EVALUATION`, `CODE_PREDICTION`, `CODE_NETWORK`, `CODE_STATISTICS`, `CODE_SIMULATION`, `CODE_ML`
+
+### Query Commands
 
 | Command / 命令 | Purpose / 用途 |
 |---------------|---------------|
-| `evolver.py suggest --problem-type X` | Returns best historical strategy + failure patterns |
+| `evolver.py suggest --problem-type X` | Returns best strategy + weak dimensions + failure patterns |
 | `evolver.py gaps` | Lists uncovered problem types + unverified algorithms |
-| `evolver.py sessions` | Lists all past sessions with solver count and paper status |
-| `evolver.py compare --session A --vs B` | Basic session comparison |
-
----
+| `evolver.py sessions` | Lists all past sessions |
+| `evolver.py evolve --session "X" --from-scorer` | Run mechanical evolution work |
 
 ## Scorer Details / 评分引擎详解
 

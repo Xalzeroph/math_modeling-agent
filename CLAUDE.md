@@ -60,7 +60,8 @@ mkdir -p sessions/题目名称/{data,notes,solvers,verifications,figures,paper}
 | 信息搜索 | `search/paper_search.py` | arXiv/OpenAlex/Semantic Scholar 多源搜索 | 建模手找文献时 |
 | 信息搜索 | `search/local_knowledge.py` | 本地算法库+论文库+进化经验三源检索 | 问题分析阶段 |
 | 经验沉淀 | `evolution/scorer.py` | 形式检查 + 百分位对比评分（自动保存结果） | 写论文时自检 |
-| 经验沉淀 | `evolution/evolver.py` | 记录经验到role文档、更新策略/QA/代码模板（支持 --from-scorer） | 做完题后进化 |
+| 经验沉淀 | `evolution/evolver.py` | 机械活：更新验证表+标记算法+产出评分分析。洞见活由你读分析后写入 role 文档 | 做完题后进化 |
+| 经验沉淀 | `evolution/scorer.py` | 10维评分+自动保存 eval_report.json | 编译完成后 |
 
 ## 可用的知识资产
 
@@ -81,25 +82,31 @@ mkdir -p sessions/题目名称/{data,notes,solvers,verifications,figures,paper}
 
 ## 每次做完题后 — 进化 + 增强
 
+进化分两步：机械活（Python）和洞见活（你）。
+
+**步骤 1：机械活（Python 自动）**
+
 ```bash
-python tools/evolution/evolver.py evolve --session "题目名称" --problem '{...}' --results '{...}'
+python tools/evolution/evolver.py evolve --session "题目名称" --from-scorer
 ```
 
-进化引擎执行 7 种增强：
+自动做的事：更新建模手验证表、标记算法库 .md + index.json、产出结构化评分分析。
 
-| 机制 | 做什么 | 效果 |
-|------|--------|------|
-| **记录** | 经验写入 roles/，算法标记 verified | 知识体持续增长 |
-| **对比** | 跟历史最佳同类型 session 比较得分 | 知道这次比上次进步还是退步 |
-| **强化** | 高分策略提升权重，低分策略降低权重 | `suggest` 越来越准 |
-| **填补** | 检测未做过的题型、未验证过的算法 | 告诉你该补哪些短板 |
-| **蒸馏** | 从所有 session 中提取高频代码特征 | 发现可迁移的通用模式 |
+**步骤 2：洞见活（你做）**
 
-**自我增强命令**：
+读 evolver 返回的 `analysis` JSON（含 weak_areas/strong_areas/weak_anchors），然后：
+1. 读 `sessions/题目名称/eval_report.json` — 评分全貌
+2. 读 `sessions/题目名称/notes/` — 建模思路
+3. 读 `sessions/题目名称/solvers/` + `verifications/` — 实现细节
+4. **用 `Edit` 工具在 role 文档对应锚点下写 100-200 字经验总结**：
+   - 做了什么 → 哪里低分 → 为什么 → 下次怎么做
+5. 写入目标：建模手 `<!-- EVOLUTION:MODEL_<题型> -->`、编程手 `<!-- EVOLUTION:CODE_<题型> -->`、论文手 `analysis.weak_anchors` 列出的锚点
+
+**查询命令**：
 ```bash
 python tools/evolution/evolver.py gaps      # 知识盲区
-python tools/evolution/evolver.py distill   # 高频模式提取
-python tools/evolution/evolver.py summary   # 进化摘要
+python tools/evolution/evolver.py suggest --problem-type X  # 查历史策略
+python tools/evolution/evolver.py sessions  # 所有 session
 ```
 
 ## 建模阶段 — 论文学习
