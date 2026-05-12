@@ -319,6 +319,10 @@ def score_session(root: Path, session_name: str, mode: str = "standard",
         elif d["score"] < 0.65:
             improvements.append(f"[WARN] {d['dimension']}({d['desc']}): {d['score']:.2f}")
 
+    # 双层基线: vs_paper + vs_self
+    self_pct = _self_percentile(root, problem_type, overall)
+    paper_pct = _paper_percentile(root, problem_type, overall)
+
     return {
         "session": session_name,
         "mode": mode,
@@ -328,8 +332,60 @@ def score_session(root: Path, session_name: str, mode: str = "standard",
         "details": details,
         "layers": layer_summary,
         "improvements": improvements,
+        "vs_paper_pct": paper_pct,
+        "vs_self_pct": self_pct,
         "baseline_source": "91篇CUMCM获奖论文(2023-2025) + MCM/ICM O奖论文",
     }
+
+
+def _self_percentile(root, problem_type, score):
+    """自身历史 baseline: 在同类 session 中的百分位"""
+    sessions_dir = root / "sessions"
+    if not sessions_dir.exists():
+        return "N/A (无历史)"
+    scores = []
+    for d in sessions_dir.iterdir():
+        if not d.is_dir():
+            continue
+        ef = d / "eval_report.json"
+        if not ef.exists():
+            continue
+        try:
+            data = json.loads(ef.read_text(encoding="utf-8"))
+        except:
+            continue
+        if data.get("problem_type", "") == problem_type:
+            scores.append(data.get("overall_score", 0))
+    if not scores:
+        return "N/A (无同类题型)"
+    better = sum(1 for s in scores if s < score)
+    pct = round(better / len(scores) * 100)
+    return f">{pct}% (优于 {better}/{len(scores)} 次自身历史)"
+
+
+def _paper_percentile(root, problem_type, score):
+    """论文统计 baseline: 在论文基线中的百分位"""
+    # 从 empirical_baselines.json 读取 319 篇统计
+    baseline_file = root / "references" / "empirical_baselines.json"
+    if not baseline_file.exists():
+        return "N/A (无基线)"
+    try:
+        bl = json.loads(baseline_file.read_text(encoding="utf-8"))
+    except:
+        return "N/A (基线无法读取)"
+    dims = bl.get("dims", {})
+    if not dims:
+        return "N/A (基线无数据)"
+    # 用 main_section_count 和 abstract_chars 的 p50 作为参考
+    # 简化: 取所有维度的 p50 加权平均做参照
+    paper_scores = []
+    for dim_name, dim_data in dims.items():
+        paper_scores.append(dim_data.get("p50", 0))
+    if not paper_scores:
+        return "N/A (基线数据不足)"
+    baseline_avg = sum(paper_scores) / len(paper_scores)
+    pct = ">p50" if score > baseline_avg else "<=p50"
+    return f"{pct} (vs 论文基线中位数)"
 
 
 def main():

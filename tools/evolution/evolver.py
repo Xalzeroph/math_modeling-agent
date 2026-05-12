@@ -97,7 +97,7 @@ class MathModelEvolver:
                 changes.append("建模手: 更新已验证算法表")
 
         # 2. 标记算法库 .md + 更新 index.json
-        changes += _mark_algorithms(self.root, models, success, ptype)
+        changes += _mark_algorithms(self.root, models, success, ptype, session_name, score)
 
         # 3. 对 scorer 输出的结构化分析（供 Claude 写经验时参考）
         analysis = _analyze_scorer_output(results, ptype)
@@ -289,7 +289,7 @@ def _infer_from_code(code: str) -> tuple:
     return ("general", [])
 
 
-def _mark_algorithms(root, models, success, ptype):
+def _mark_algorithms(root, models, success, ptype, session_name, score):
     changes = []
     algo_dir = root / "algorithms"
     type_map = {
@@ -324,12 +324,13 @@ def _mark_algorithms(root, models, success, ptype):
                     content = content.replace(matched.group(0), new_line, 1)
                     fpath.write_text(content, encoding="utf-8")
                     changes.append(f"算法库: 标记 {a} verified")
-                    _update_index_json(root, a)
+                    _update_index_json(root, a, session_name, ptype, score)
                     break
     return changes
 
 
-def _update_index_json(root, algo_id):
+def _update_index_json(root, algo_id, session_name, ptype, score):
+    """动态知识图谱: 追加使用记录"""
     idx_file = root / "algorithms" / "index.json"
     if not idx_file.exists():
         return
@@ -337,8 +338,15 @@ def _update_index_json(root, algo_id):
     for dk, domain in index.get("domains", {}).items():
         for sk, sub in domain.get("subdomains", {}).items():
             for m in sub.get("methods", []):
-                if m["id"] == algo_id and not m.get("evolved_status"):
-                    m["evolved_status"] = f"verified {_now()}"
+                if m["id"] == algo_id:
+                    record = {"date": _now(), "session": session_name,
+                             "type": ptype, "score": score}
+                    if isinstance(m.get("evolved_status"), str):
+                        m["evolved_status"] = [record]
+                    elif isinstance(m.get("evolved_status"), list):
+                        m["evolved_status"].append(record)
+                    else:
+                        m["evolved_status"] = [record]
                     idx_file.write_text(json.dumps(index, indent=2, ensure_ascii=False), encoding="utf-8")
                     return
 
