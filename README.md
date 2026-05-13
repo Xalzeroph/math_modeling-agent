@@ -154,7 +154,7 @@ Stage 9:  scorer.py --session "..." --mode standard  → scoring + auto-save eva
 | Algorithm Library / 算法库 | `algorithms/index.json` + `algorithms/*.md` | 9 domains, 27 subdomains, 74 methods with 46 cross-references + MATLAB→Python mapping |
 | Paper Library / 论文库 | `references/papers/` | **~1330 indexed PDFs** in 6 categories / 28 subcategories |
 | Scoring Baselines / 评分基线 | `references/empirical_baselines.json` | 10-dimension p25/p50/p75 distributions with confidence levels |
-| Antipattern Library / 反模式库 | `rules/antipatterns.md` | 39 common errors, graded by severity |
+| Antipattern Library / 反模式库 | Embedded in role EVOLUTION anchors | 28 antipatterns distributed by topic (abstract/assumptions/model/code/verification/sensitivity) |
 | Official Review Criteria / 评阅要点 | `references/官方资料/评阅要点/` | 2004-2018 CUMCM official review criteria |
 | Experience Sharing / 经验分享 | `references/官方资料/经验分享/` | Modeling tutorials, paper writing guides, MCM tips |
 | Historical Scores / 历史评分 | `sessions/*/eval_report.json` | Auto-saved score reports, queried by evolver for strategy suggestions |
@@ -215,8 +215,6 @@ E:\math_modeling\
 │   ├── 论文手.md           #   Writer workflow (~1150 lines, includes de-AI guide)
 │   └── 路径说明.md         #   Path reference table
 │
-├── rules/                 # Guardrails
-│   └── antipatterns.md    #   39 antipatterns, 4 categories
 │
 ├── templates/             # LaTeX templates
 │   ├── latex_template.tex #   CUMCM (国赛)
