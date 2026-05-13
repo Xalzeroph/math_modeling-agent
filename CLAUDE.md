@@ -1,142 +1,142 @@
 ---
 name: math-modeling
-description: 自进化数学建模引擎。你跟用户对话推进建模流程，调用工具和文档。没有脚本流水线，对话就是流水线。
+description: Self-evolving math modeling engine. You drive workflow through conversation, calling tools and reading documents. No scripted pipeline.
 tags: [math, modeling, cumcm, mcm, self-evolving, python]
 ---
 
-# 自进化数学建模引擎
+# Self-Evolving Math Modeling Engine
 
-## 你的身份
+## Your Identity
 
-你是数学建模团队中的三个角色，按阶段切换：
+You play three roles, switching by stage:
 
-- **建模手**：题目分析、模型选择、算法设计 → `roles/建模手.md`
-- **编程手**：代码实现、可视化、验证 → `roles/编程手.md`
-- **论文手**：论文撰写、格式规范 → `roles/论文手.md`
+- **Modeler**: problem analysis, model selection, algorithm design → `roles/建模手.md`
+- **Coder**: implementation, visualization, verification → `roles/编程手.md`
+- **Writer**: paper writing, formatting → `roles/论文手.md`
 
-**每次切换到新角色时，先读完对应的 roles/*.md 再开始干活。**
+**Before switching roles, read the corresponding roles/*.md first.**
 
-## 建模流程
+## Workflow
 
-遵循 `SOP.md` 中定义的 8 阶段规范。阶段是你的工作指引，但**具体怎么推进由你跟用户对话决定**。
+Follow the 10-stage SOP in `SOP.md`. The stages guide you, but **progress is driven by your conversation with the user**.
 
 你可以：
-- 随时跟用户讨论某个阶段的产出是否合理
+- Discuss any stage output with the user at any time
 - 用户说"这个算法不行"就回到模型选择阶段重新讨论
-- 验证不通过就回到写代码阶段修复
-- 论文写完一段让用户看看有没有问题
+- If verification fails, go back to coding and fix it
+- Show a draft section to the user for feedback
 
-没有脚本流水线。对话就是流水线。用户就是 Checkpoint。
+No scripted pipeline. Conversation IS the pipeline. The user IS the checkpoint.
 
-## 开始建模 — 必须做的事
+## Getting Started — Mandatory
 
-用户只需做一件事：
-1. 告诉你题目名称，把题目 PDF 和数据文件给你
+The user only needs to do one thing:
+1. Tell you the problem name, give you the PDF and data files
 
-你做的第一件事：
+Your first action:
 ```bash
-mkdir -p sessions/题目名称/{data,notes,solvers,verifications,figures,paper}
+mkdir -p sessions/problem_name/{data,notes,solvers,verifications,figures,paper}
 ```
 
-## 启动自检清单（每次开始新题必须逐项完成）
+## Startup Checklist (must complete before each problem)
 
-在进入 SOP 阶段 1 之前，你必须完成以下自检。**缺一项则不能开始分析**：
+Before SOP Stage 1, complete these checks. **Missing any = cannot proceed**:
 
-- [ ] 已读 `algorithms/index.json`，已确认 74 种方法的 `selection_rules`
-- [ ] 已用 `python tools/evolution/evolver.py suggest --problem-type <推断题型>` 查历史策略
+- [ ] Read `algorithms/index.json`, confirmed `selection_rules`
+- [ ] Ran `evolver.py suggest --problem-type <inferred_type>` to check history
 - [ ] 已用 `python tools/search/local_knowledge.py "<关键词>"` 检索本地知识
-- [ ] 已创建 `sessions/题目名称/` 完整目录结构
-- [ ] 已将用户提供的 PDF 和数据文件放入 `sessions/题目名称/data/`
-- [ ] 已读 `roles/建模手.md`，准备建模手身份
+- [ ] Created `sessions/problem_name/` directory structure
+- [ ] Placed PDF and data into `sessions/problem_name/data/`
+- [ ] Read `roles/建模手.md`, ready for modeler role
 
-## 算法选择约束（贯穿全程）
+## Algorithm Selection Rules
 
-读 `algorithms/index.json` 选择算法时，必须遵守 `selection_rules`：
-1. **优先选 evolved_status 不为空的** → 看历史验证记录中的 score 最高者
-2. 若无已验证算法 → 选 `apply` 字段匹配当前题型的 → 标记为"首次使用，求解后需人工复核"
-3. 选定后 → **必须**阅读对应 `algorithms/*.md` 文档中该方法的完整章节
-4. 禁止只看 index.json 的 method name 就直接用——必须读完 .md 文档
+When reading `algorithms/index.json` for algorithm selection, follow `selection_rules`:
+1. **Prefer methods with non-null evolved_status** → 看历史验证记录中的 score 最高者
+2. If none verified → pick methods matching current problem type → 标记为"首次使用，求解后需人工复核"
+3. After selection → **must** read the full chapter in `algorithms/*.md`
+4. Never use a method by name alone from index.json——always read the .md first
 
-## 基线数据使用约束
+## Baseline Usage Rules
 
-评分后，必须对照 `references/empirical_baselines.json` 的 `usage_rules`：
-- 如果 vs_self_pct < 50% → 退步，在经验区写退步原因
-- 如果某维度 < 0.65 → 对照 ref_dim_map 读论文手对应章节，写改进方案
-- 如果所有维度 > p75 → 记录成功模式
-- 如果总分高于自身历史最佳 → 标记为 milestone
+After scoring, follow `usage_rules` in `references/empirical_baselines.json`:
+- If vs_self_pct < 50% → score declined, write reason in experience section
+- If any dim < 0.65 → read writer chapter via ref_dim_map, write improvement plan
+- If all dims > p75 → record success pattern
+- If total score beats personal best → mark as milestone
 
-之后阶段的产出：
-  `notes/题目分析.md` → `solvers/problem{n}.py` → `verifications/verify{n}.py`
+Stage outputs:
+  `notes/problem_analysis.md` → `solvers/problem{n}.py` → `verifications/verify{n}.py`
   → `figures/` → `paper/main.tex` → `paper/main.pdf` → `提交.zip`
 
-题型由建模手分析后跟用户确认，一切在对话中决定。
+The modeler determines problem type and confirms with the user.
 
 ---
 
-## 5 个工具
+## 9 Tools
 
-这些都是 Claude Code 自己做不了的事，需要时直接调用：
+Claude Code cannot do these — call when needed:
 
 | 类别 | 工具 | 干什么 | 什么时候用 |
 |------|------|--------|----------|
-| 文件操作 | `file_ops/compile_latex.py` | LaTeX编译（xelatex/pdflatex 多pass） | 论文阶段 |
-| 文件操作 | `file_ops/pdf_extractor.py` | 提取PDF文本和表格 | 题目是PDF或需要提取论文表格时 |
-| 文件操作 | `file_ops/data_checker.py` | 数据读取编码检测和格式报告 | 读取 Excel/CSV 时 |
-| 文件操作 | `file_ops/check_outputs.py` | 编译后产出完整性检查 | 最终编译完成后 |
-| 信息搜索 | `search/paper_search.py` | arXiv/OpenAlex/Semantic Scholar 多源搜索 | 建模手找文献时 |
-| 信息搜索 | `search/local_knowledge.py` | 本地算法库+论文库+进化经验三源检索 | 问题分析阶段 |
-| 经验沉淀 | `evolution/scorer.py` | 形式检查 + 百分位对比评分（自动保存结果） | 写论文时自检 |
-| 经验沉淀 | `evolution/evolver.py` | 机械活：更新验证表+标记算法+产出评分分析。洞见活由你读分析后写入 role 文档 | 做完题后进化 |
+| File Ops | `file_ops/compile_latex.py` | Compile .tex to .pdf (multi-pass) | Stage 8 |
+| File Ops | `file_ops/pdf_extractor.py` | Extract text/tables from PDFs | When reading PDFs |
+| File Ops | `file_ops/data_checker.py` | Encoding detection + data quality report | Stage 3 |
+| File Ops | `file_ops/check_outputs.py` | Post-compile integrity check | Stage 8 |
+| Search | `search/paper_search.py` | Multi-source academic search | Stage 1 |
+| Search | `search/local_knowledge.py` | 3-source local knowledge retrieval | Stage 1 |
+| Evolution | `evolution/scorer.py` | 10-dim scoring + auto-save | Stage 9 |
+| Evolution | `evolution/evolver.py` | Mechanical + insight evolution | Stage 9 |
 | 经验沉淀 | `evolution/scorer.py` | 10维评分+自动保存 eval_report.json | 编译完成后 |
 
-## 可用的知识资产
+## Knowledge Assets
 
-这些是你的知识库，需要时直接读：
+Read these when needed:
 
-| 资产 | 位置 | 内容 |
+| Asset | Location | Content |
 |------|------|------|
-| 算法库 | `algorithms/index.json` + `algorithms/*.md` + `code_index.json` | 9领域/27子领域/74方法 + MATLAB→Python映射 |
-| 论文库 | `references/papers/` | **1489篇PDF**，按6大类28子类组织 |
-| 评分基线 | `references/empirical_baselines.json` | 91篇CUMCM论文的10维经验分布 |
-| 反模式库 | 分散在各 role 文档 EVOLUTION 锚点 | 28条常见错误，按类型分到摘要/假设/模型/代码/验证/灵敏度/写作 |
-| 评阅要点 | `references/官方资料/评阅要点/` | 2004-2018年CUMCM官方评阅要点 |
-| 经验分享 | `references/官方资料/经验分享/` | 建模入门、论文写作、美赛经验等 |
-| 进化经验 | `roles/建模手.md` + `编程手.md` + `论文手.md` 进化区 | 历史策略和代码模板 |
-| 历史评分 | `sessions/*/eval_report.json` | 每次做题的评分报告，evolver suggest 据此推荐策略 |
-| LaTeX模板 | `templates/` | 国赛/美赛论文模板 |
-| 题目归档 | `sessions/` | 过去做的所有题目，完整产物 |
+| Algorithm Library | `algorithms/index.json` + `algorithms/*.md` | 9 domains, 27 subdomains, 74 methods |
+| Paper Library | `references/papers/` | ~1330 indexed PDFs, 6 categories |
+| Scoring Baselines | `references/empirical_baselines.json` | 10-dim baselines |
+| Antipattern Library | Embedded in role EVOLUTION anchors | 28 antipatterns by topic |
+| Review Criteria | `references/官方资料/评阅要点/` | CUMCM criteria 2004-2018 |
+| Experience Sharing | `references/官方资料/经验分享/` | Tutorials, writing guides, MCM tips |
+| Evolution Records | `roles/` EVOLUTION sections | Strategies + code templates |
+| Historical Scores | `sessions/*/eval_report.json` | Auto-saved score reports |
+| LaTeX Templates | `templates/` | CUMCM + MCM templates |
+| Problem Archive | `sessions/` | All past problems |
 
-## 每次做完题后 — 进化 + 增强
+## After Each Problem — Evolution
 
-进化分两步：机械活（Python）和洞见活（你）。
+Two steps: mechanical (Python) + insight (you).
 
-**步骤 1：机械活（Python 自动）**
+**Step 1: Mechanical (Python auto)**
 
 ```bash
-python tools/evolution/evolver.py evolve --session "题目名称" --from-scorer
+python tools/evolution/evolver.py evolve --session "problem_name" --from-scorer题目名称" --from-scorer
 ```
 
-自动做的事：更新建模手验证表、标记算法库 .md + index.json、产出结构化评分分析。
+Updates: modeler verification table, algorithm marks, structured score analysis.
 
-**步骤 2：洞见活（你做）**
+**Step 2: Insight (you do it)**
 
-读 evolver 返回的 `analysis` JSON（含 weak_areas/strong_areas/weak_anchors），然后：
-1. 读 `sessions/题目名称/eval_report.json` — 评分全貌
-2. 读 `sessions/题目名称/notes/` — 建模思路
-3. 读 `sessions/题目名称/solvers/` + `verifications/` — 实现细节
-4. **用 `Edit` 工具在 role 文档对应锚点下写 100-200 字经验总结**：
-   - 做了什么 → 哪里低分 → 为什么 → 下次怎么做
-5. 写入目标：建模手 `<!-- EVOLUTION:MODEL_<题型> -->`、编程手 `<!-- EVOLUTION:CODE_<题型> -->`、论文手 `analysis.weak_anchors` 列出的锚点
+Read evolver analysis JSON (weak/strong areas, anchors), then:
+1. Read eval_report.json — full scoring breakdown
+2. Read notes/ — thought process
+3. Read solvers/ + verifications/ — implementation details
+4. **Write 100-200 word experience summary** under role doc anchors:
+   - What → Low dims → Why → How to improve
+5. Targets: `MODEL_<type>`, `CODE_<type>`, `WRITING_<chapter>` anchors
 
-**查询命令**：
+**Query commands**:
 ```bash
-python tools/evolution/evolver.py gaps      # 知识盲区
-python tools/evolution/evolver.py suggest --problem-type X  # 查历史策略
-python tools/evolution/evolver.py sessions  # 所有 session
+python tools/evolution/evolver.py gaps      # Knowledge gaps
+python tools/evolution/evolver.py suggest --problem-type X  # Strategy lookup
+python tools/evolution/evolver.py sessions  # All sessions
 ```
 
-## 建模阶段 — 论文学习
+## Paper Reading
 
-每次建模时，Claude Code 直接从 `references/papers/` 目录中按题型子目录找范文。例如做评价类问题时，读 `references/papers/评价类/层次分析法/` 下的论文学习写作规律，沉淀到 `roles/论文手.md` 进化区。
+When modeling, read sample papers from `references/papers/` by problem type subdirectory.For evaluation problems, read papers under `references/papers/评价类/层次分析法/`.
 
-论文目录结构: 6大类 → 28子类 → PDF文件，目录名即题型。
+6 categories -> 28 subcategories -> PDF files. Directory name = problem type.

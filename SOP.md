@@ -1,11 +1,11 @@
-# 数学建模操作规范 (SOP)
+# Mathematical Modeling Standard Operating Procedure (SOP)
 
-> 这是 Claude Code 执行数学建模任务时的行为指南。
-> 9 个阶段是指导框架。推进节奏由你跟用户对话决定——用户说继续就继续，说改就改。
+> This is Claude Code's behavioral guide for mathematical modeling tasks.
+> 9  stages are a framework. Progress is driven by your conversation with the user.
 
 ---
 
-## 建模流程（10 阶段）
+## 10-Stage Workflow
 
 ```
 问题分析 → 模型选择与构建 → 数据预处理 → 模型求解 
@@ -13,86 +13,86 @@
          → 评分进化 → 打包提交
 ```
 
-每个阶段的主导角色和关键产出：
+Lead role and key output for each stage:
 
-| 阶段 | 主导角色 | 产出 | 用户参与 |
+| # | Lead | Output | User |
 |------|---------|------|---------|
-| 问题分析 | 建模手 | `notes/题目分析.md` | 讨论模型选择是否合理 |
-| 模型选择与构建 | 建模手→编程手 | `solvers/` 骨架代码 | 讨论算法设计 |
-| 数据预处理 | 编程手 | 规范化数据 | 确认处理方式 |
-| 模型求解 | 编程手 | `solvers/problem{n}.py` | 讨论结果 |
-| 模型验证 | 编程手 | `verifications/verify{n}.py` | 确认验证标准 |
-| 灵敏度分析 | 建模手 | `notes/sensitivity.md` | 讨论参数范围 |
-| 论文撰写 | 论文手 | `paper/main.tex` | 逐章讨论修改 |
-| 最终编译 | 论文手 | `paper/main.pdf` | 最终确认 |
-| 评分进化 | — | 评分报告 + 经验沉淀 | 复盘讨论 |
-| 打包提交 | — | `提交.zip` | 确认文件清单 |
+| 1 | Modeler | `notes/ProblemAnalysis.md` | Confirm model selection |
+| 2 | Modeler > Coder | `solvers/` scaffolding | Discuss algorithm design |
+| 3 | Coder | Cleaned data | Confirm preprocessing |
+| 4 | Coder | `solvers/problem{n}.py` | Discuss results |
+| 5 | Coder | `verifications/verify{n}.py` | Confirm verification |
+| 6 | Modeler | `notes/sensitivity.md` | Discuss parameters |
+| 7 | Writer | `paper/main.tex` | Review per chapter |
+| 8 | Writer | `paper/main.pdf` | Final approval |
+| 9 | — | Score report | Review |
+| 10 | — | `submission.zip` | Confirm files |
 
 ---
 
-## 对话推进原则
+## Conversation Principles
 
-1. **你不是机器流水线**。你有判断力。如果你觉得某个模型选得不对，直接告诉用户你的疑虑。
-2. **用户可以随时打断**。说"不对，回到模型选择"、"换个算法试试"、"这段论文AI味太重重写"，你就回去重做。
-3. **一个重要决定做之前先问**。模型选择、算法设计、论文结构这些关键点，给出你的分析和建议，让用户确认再执行。
-4. **验证是硬门禁**。代码必须运行通过。验证脚本必须全部 PASS。这条不能商量。
-5. **做完一个阶段主动汇报**。让用户知道做了什么、结果如何、下一步打算做什么。用户同意就继续，用户有意见就讨论修改。
-6. **用户说"继续"你就推进到下一阶段**。不用等特定的脚本指令。
+1. **You are not a scripted pipeline**. You have judgement. If a model seems wrong, tell the user.
+2. **The user can interrupt at any time**.说"不对，回到模型选择"、"换个算法试试"、"这段论文AI味太重重写"，你就回去重做。
+3. **Ask before making important decisions**.模型选择、算法设计、论文结构这些关键点，给出你的分析和建议，让用户确认再执行。
+4. **Verification is a hard gate**. All checks must PASS. Non-negotiable.
+5. **Report after each stage**.让用户知道做了什么、结果如何、下一步打算做什么。用户同意就继续，用户有意见就讨论修改。
+6. **When the user says "continue," move to the next stage**.No special commands needed.
 
 ---
 
-## 阶段详细指引
+## Stage Details
 
-### 阶段 1：问题分析
+### Stage 1: Problem Analysis
 
-Session 目录已在开始建模时一次性创建完成：
+Session directory created at startup:
 `sessions/题目名称/{data,notes,solvers,verifications,figures,paper}`
 
-读取 `roles/建模手.md`，切换为建模手身份。
+Read `roles/建模手.md`, switch to modeler role.
 
-**必须做的事**：
-1. 读题目 — 从 PDF 提取文本，或从用户提供的描述中提取
-2. 查数据 — 检查 `data/` 里的文件，分析数据结构和大致规模
-3. 判题型 — 优化/预测/评价/分类/ODE/图论/混合
-4. 查资产 — 读 `algorithms/index.json` 找匹配算法，读 `algorithms/*.md` 看详细文档，用 `python tools/search/local_knowledge.py "关键词"` 做本地三源检索，用 `python tools/evolution/evolver.py suggest --problem-type <题型>` 查历史经验，用 `python tools/search/paper_search.py --query "关键词"` 搜外部论文
-5. 选模型 — 遵守模型选择三原则：能用简单就不用复杂
-6. 设计算法 — 写清楚求解步骤、流程图、关键参数
-7. 建术语表 — 统一定义全文术语和符号
+**Mandatory**:
+1. Read the problem: extract text from PDF or user description
+2. Check data: analyze files in `data/`
+3. Determine problem type: optimization/prediction/evaluation/classification/ODE/graph/hybrid
+4. Search assets: — 读 `algorithms/index.json` 找匹配算法，读 `algorithms/*.md` 看详细文档，用 `python tools/search/local_knowledge.py "关键词"` 做本地三源检索，用 `python tools/evolution/evolver.py suggest --problem-type <题型>` 查历史经验，用 `python tools/search/paper_search.py --query "关键词"` 搜外部论文
+5. Select model: follow 3 principles, prefer simple over complex
+6. Design algorithm: solving steps, flowchart, key parameters
+7. Build glossary: unified definitions for all terms and symbols
 
-**产出**：写 `notes/题目分析.md`（建模手产出的完整分析文档）
+**Output**: `notes/ProblemAnalysis.md` (complete analysis document)
 
-**跟用户讨论**：模型选择是否合理？算法思路对不对？
+**Discuss with user**: Is the model reasonable? Is the algorithm approach correct?
 
 ---
 
-### 阶段 2：模型选择与构建
+### Stage 2: Model Selection & Scaffolding
 
-仍然是建模手身份，完成模型设计的最后确认后，读取 `roles/编程手.md` 切换为编程手。
+Still modeler role, then switch to coder after model design is confirmed.
 
-**必须做的事**：
-1. 确认模型设计 — 跟用户确认阶段 1 的模型和算法选择
-2. 建骨架代码 — 根据模型选择，为每个子问题写 `solvers/problem{n}_{type}.py` 的骨架（函数签名、参数接口、TODO 注释）
-3. 确定数据需求 — 明确每个模型需要什么格式的输入数据（归一化？标准化？类别编码？缺失值策略？）
-4. **写完必须运行骨架代码**，确保 import 和基本结构没有语法错误
+**Mandatory**:
+1. Confirm model design with the user
+2. Build scaffolding for each subproblem
+3. Determine data requirements（归一化？标准化？类别编码？缺失值策略？）
+4. **Must run scaffolding** to check syntax
 
-**产出**：`solvers/problem{n}_{type}.py` 骨架 + 数据需求清单
+**Output**: `solvers/` scaffolding + data requirements
 
-**跟用户讨论**：算法设计是否合理？有没有更好的替代方案？
+**Discuss**: Is the algorithm design reasonable?
 
-**交接清单（建模手 → 编程手）** — 阶段 2 完成后，必须把以下信息写入 `notes/交接清单.md`：
+**Handoff (Modeler > Coder)** — 阶段 2 完成后，必须把以下信息写入 `notes/交接清单.md`：
 
 ```markdown
 ## 交接清单: 建模手 → 编程手
 
 | 项目 | 内容 |
 |------|------|
-| 问题编号 | 问题1/2/3/N |
-| 算法选择 | 具体算法名 + 为什么选这个 |
-| 输入数据格式 | 列名、数据类型、需要的预处理 |
-| 输出结果格式 | 最优值/预测值/排序/分类标签等 |
-| 关键参数 | 每个参数的含义和推荐范围 |
-| 验证标准 | 对应哪种模型类型的验证项 |
-| 可视化需求 | 需要画哪些图（参考 ~120种图表清单） |
+| Problem # | 1/2/3/N |
+| Algorithm | Name + why chosen |
+| Input format | Columns, types, preprocessing |
+| Output format | Solutions/predictions/scores/labels |
+| Key params | Meaning and recommended range |
+| Verification | Which model type checks apply |
+| Visualization | Chart types needed |
 ```
 
 ---
@@ -101,7 +101,7 @@ Session 目录已在开始建模时一次性创建完成：
 
 仍然是编程手身份。根据阶段 2 确定的数据需求，有针对性地处理数据。
 
-**必须做的事**：
+**Mandatory**:
 1. 读原始数据 — `df.info()` `df.describe()` 打印数据概况
 2. **针对模型做预处理**（不是通用处理）：
    - 优化模型：标准化约束条件格式，确保量纲一致
@@ -120,7 +120,7 @@ Session 目录已在开始建模时一次性创建完成：
 
 仍然是编程手，严格按照阶段 1 的算法设计和阶段 3 的数据处理结果实现。
 
-**必须做的事**：
+**Mandatory**:
 1. 读 `notes/题目分析.md` 和 `solvers/` 中的骨架代码
 2. 填充求解逻辑 — 在骨架上完成算法实现
 3. **写完必须运行**，报错就修
@@ -169,7 +169,7 @@ Session 目录已在开始建模时一次性创建完成：
 
 切换回建模手身份。
 
-**必须做的事**：
+**Mandatory**:
 1. 挑关键参数，做 ±20% 扰动
 2. 量化输出变化幅度
 3. 找出最敏感的参数
@@ -197,7 +197,7 @@ Session 目录已在开始建模时一次性创建完成：
 
 读取 `roles/论文手.md`，切换为论文手身份。
 
-**必须做的事**：
+**Mandatory**:
 1. **复制 LaTeX 模板**：
    - 国赛：`cp templates/latex_template.tex paper/main.tex`
    - 美赛：`cp templates/mcm_template.tex paper/main.tex`
