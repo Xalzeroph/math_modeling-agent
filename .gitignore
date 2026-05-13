@@ -5,10 +5,21 @@ __pycache__/
 .idea/
 .DS_Store
 Thumbs.db
-sessions/
 *.exe
 *.zip
 *.tar.gz
-references/
 releases_new/
-sessions/
+
+# TODO: unused C drive files, delete after moving
+E:/
+
+# references: track directory, ignore files
+references/papers/*
+!references/papers/papers_metadata.json
+references/官方资料/评阅要点/*
+references/官方资料/经验分享/*
+!references/官方资料/*.md
+
+# sessions: track directory, ignore subdir content
+sessions/*
+!sessions/*/eval_report.json
