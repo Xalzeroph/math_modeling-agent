@@ -10,9 +10,10 @@ Thumbs.db
 *.tar.gz
 releases_new/
 
-# Session 解题产物（只保留目录结构 .gitkeep + 评分报告）
+# Session 解题产物（只保留目录结构 .gitkeep + 评分报告 + README）
 sessions/*
 !sessions/.gitkeep
+!sessions/README.md
 !sessions/*/eval_report.json
 
 # 论文 PDF 不提交（通过 GitHub Releases 下载）
