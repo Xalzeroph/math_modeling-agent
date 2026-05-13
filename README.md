@@ -1,3 +1,4 @@
+fuck you
 # Self-Evolving Mathematical Modeling Engine / 自进化数学建模引擎
 
 A complete, conversational mathematical modeling system built on top of Claude Code.
