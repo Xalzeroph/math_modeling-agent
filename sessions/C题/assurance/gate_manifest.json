@@ -1,0 +1,105 @@
+{
+  "session": "C题",
+  "assurance_level": "draft",
+  "overall_verdict": "PASS",
+  "submission_ready": true,
+  "summary": {
+    "total_audits": 8,
+    "passed": 8,
+    "warn": 0,
+    "blocking": 0,
+    "missing": 0
+  },
+  "gates": [
+    {
+      "audit": "proof_audit",
+      "skill": "proof-checker",
+      "stage": 2,
+      "description": "公式推导验证",
+      "verdict": "PASS",
+      "summary": "Gate 1 指出的所有符号表问题和公式问题已在修复阶段解决。当前 PASS。",
+      "artifact_valid": true,
+      "artifact_path": "assurance\\proof_audit.json",
+      "stale_inputs": []
+    },
+    {
+      "audit": "idea_audit",
+      "skill": "idea-audit",
+      "stage": 2,
+      "description": "模型选型审计",
+      "verdict": "PASS",
+      "summary": "Gate 1 指出的 C5 公式问题已修复。阅读审计+模型选型均 PASS。",
+      "artifact_valid": true,
+      "artifact_path": "assurance\\idea_audit.json",
+      "stale_inputs": []
+    },
+    {
+      "audit": "code_audit",
+      "skill": "code-audit",
+      "stage": 5,
+      "description": "代码完整性审计",
+      "verdict": "PASS",
+      "summary": "7 项检查: 3 PASS, 3 WARN, 1 FAIL (STIRPAT 循环论证)。核心问题：P2 模型实质是 Kaya 恒等式而非统计预测模型，R²=1.0 是代数必然。对 P3 情景预测影响有限（Kaya 框架本身可用于分解驱动因素），但论文中必须说明这是 accounting framework 而非 predictive model。",
+      "artifact_valid": true,
+      "artifact_path": "assurance\\code_audit.json",
+      "stale_inputs": []
+    },
+    {
+      "audit": "claim_map",
+      "skill": "claim_map",
+      "stage": 5,
+      "description": "结果→论断映射（Markdown artifact）",
+      "verdict": "PASS",
+      "summary": "Markdown artifact present (1284 chars)",
+      "artifact_valid": true,
+      "artifact_path": "assurance\\claim_map.md",
+      "stale_inputs": []
+    },
+    {
+      "audit": "sensitivity_audit",
+      "skill": "sensitivity-audit",
+      "stage": 6,
+      "description": "灵敏度分析审计",
+      "verdict": "PASS",
+      "summary": "4/5 必检项 PASS, 1 NOT_APPLICABLE. 灵敏度分析完整、量化、有政策含义。最敏感参数（GDP增长率）识别正确。存在可改进项均为可选的深化方向，不影响核心结论。",
+      "artifact_valid": true,
+      "artifact_path": "assurance\\sensitivity_audit.json",
+      "stale_inputs": []
+    },
+    {
+      "audit": "claim_audit",
+      "skill": "paper-claim-audit",
+      "stage": 7,
+      "description": "论文数字核对",
+      "verdict": "PASS",
+      "summary": "9条数字论断: 9 PASS。所有数字与结果文件一致，2处表述已精确化。",
+      "artifact_valid": true,
+      "artifact_path": "assurance\\claim_audit.json",
+      "stale_inputs": []
+    },
+    {
+      "audit": "citation_audit",
+      "skill": "citation-audit",
+      "stage": 7,
+      "description": "引用真实性验证",
+      "verdict": "PASS",
+      "summary": "6条引用: 全部 VERIFIED。已移除2条关联性较弱的引用(deng1990灰色系统, zhao2021交通排放)。",
+      "artifact_valid": true,
+      "artifact_path": "assurance\\citation_audit.json",
+      "stale_inputs": []
+    },
+    {
+      "audit": "kill_argument",
+      "skill": "kill-argument",
+      "stage": 7,
+      "description": "模型评价对抗审查",
+      "verdict": "PASS",
+      "summary": "PASS — 4个攻击点：1个已回答、2个部分回答、1个未回答（预测回测验证）。无击穿性缺陷。未回答项建议在改进方向中补充。",
+      "artifact_valid": true,
+      "artifact_path": "assurance\\kill_argument.json",
+      "stale_inputs": []
+    }
+  ],
+  "generated_at": "2026-05-18T18:22:03.604588+00:00",
+  "assurance_contract_version": "1.0"
+}

@@ -12,6 +12,7 @@ import argparse
 import json
 import re
 import sys
+if sys.platform == "win32": sys.stdout.reconfigure(encoding="utf-8")
 from pathlib import Path
 from typing import List, Dict, Optional
 from collections import defaultdict
@@ -227,6 +228,7 @@ def main():
         print(output)
     except UnicodeEncodeError:
         import sys
+if sys.platform == "win32": sys.stdout.reconfigure(encoding="utf-8")
         sys.stdout.reconfigure(encoding='utf-8', errors='replace')
         print(output)
 

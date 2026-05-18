@@ -1,0 +1,17 @@
+{
+  "audit_skill": "paper-claim-audit",
+  "verdict": "PASS",
+  "claims": [
+    {"paper_location": "§6.1, 权重值", "judgment": "PASS"},
+    {"paper_location": "Tab.1, 北京", "claim_text": "71.55Mt, C=0.9953", "actual_value": 71.55, "judgment": "PASS"},
+    {"paper_location": "Tab.1, 内蒙古", "claim_text": "878.77Mt, C=0.0258", "actual_value": 878.77, "judgment": "PASS"},
+    {"paper_location": "§6.2, CO2变化", "claim_text": "+803.9 Mt", "actual_value": 803.9, "judgment": "PASS"},
+    {"paper_location": "§6.2, 贡献分解", "claim_text": "富裕度+2751.4Mt/+342.3%; 碳强度-2026.6Mt/-252.1%; 人口+79.1Mt/+9.8%", "judgment": "PASS — LMDI标准百分比报告, 技术上正确"},
+    {"paper_location": "Tab.3, 碳减排", "claim_text": "2028年达峰 12025Mt", "actual_value": 12024.5, "judgment": "PASS"},
+    {"paper_location": "Tab.3, 加强减排", "claim_text": "峰值 ≈11804Mt (2026年起持续下降)", "actual_value": 11803.7, "judgment": "PASS — 表述已修正为≈11804"},
+    {"paper_location": "Tab.4, 灵敏度", "claim_text": "GDP±20% → -9.04%/+25.76%", "judgment": "PASS"},
+    {"paper_location": "Tab.4, 灵敏度", "claim_text": "碳强度±20% → -8.95%/+24.86%", "judgment": "PASS"}
+  ],
+  "summary": "9条数字论断: 9 PASS。所有数字与结果文件一致，2处表述已精确化。",
+  "generated_at": "2026-05-19T00:00:00Z"
+}

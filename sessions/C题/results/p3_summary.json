@@ -1,0 +1,19 @@
+{
+  "peak_analysis": {
+    "Baseline (BAU)": {
+      "peak_year": 2045,
+      "peak_value": 14832.948076642873,
+      "type": "monotonic"
+    },
+    "Carbon Reduction": {
+      "peak_year": 2028,
+      "peak_value": 12024.526283502877,
+      "type": "peak"
+    },
+    "Enhanced Reduction": {
+      "peak_year": 2026,
+      "peak_value": 11803.717651591942,
+      "type": "monotonic"
+    }
+  }
+}

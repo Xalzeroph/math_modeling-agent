@@ -16,6 +16,7 @@ import argparse
 import json
 import re
 import sys
+if sys.platform == "win32": sys.stdout.reconfigure(encoding="utf-8")
 from pathlib import Path
 from typing import Optional
 

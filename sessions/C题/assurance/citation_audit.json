@@ -1,0 +1,14 @@
+{
+  "audit_skill": "citation-audit",
+  "verdict": "PASS",
+  "citations": [
+    {"key": "sun2022", "title": "Will China achieve its 2060 carbon neutral commitment...", "status": "VERIFIED", "note": "STIRPAT+中国省际碳达峰"},
+    {"key": "liu2018", "title": "Can China achieve its carbon emission peaking?...", "status": "VERIFIED", "note": "STIRPAT+情景分析"},
+    {"key": "ang2005", "title": "The LMDI approach to decomposition analysis", "status": "VERIFIED", "note": "LMDI方法原始论文"},
+    {"key": "fang2019", "title": "Will China peak its energy-related carbon emissions...", "status": "VERIFIED", "note": "省际碳排放分析"},
+    {"key": "shannon1948", "title": "A mathematical theory of communication", "status": "VERIFIED", "note": "信息论"},
+    {"key": "hwang1981", "title": "Multiple Attribute Decision Making", "status": "VERIFIED", "note": "TOPSIS原始出处"}
+  ],
+  "summary": "6条引用: 全部 VERIFIED。已移除2条关联性较弱的引用(deng1990灰色系统, zhao2021交通排放)。",
+  "generated_at": "2026-05-19T00:00:00Z"
+}
