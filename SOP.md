@@ -54,7 +54,24 @@ Lead: **建模手**
 
 Lead: **建模手**
 
-**Mandatory**:
+**Mandatory — Step 0: 论文阅读门禁** (必须先完成建模手论文阅读要求)
+
+**核心原则**: 读尽可能多，读完后必须总结题型规律。
+
+**阅读要求**:
+1. **本地论文库**: 进入 `references/papers/` → 按题型子目录阅读 **保底 5 篇** 相关论文（上不封顶，尽量多读）
+   - 阅读论文的模型选择逻辑、方法组合方式、论文结构
+   - 生成 `notes/阅读笔记.md`，记录每篇论文的：模型方法、关键结论、对本题的参考价值
+   - **必须产出规律总结**: 提炼所有论文的共同模式（方法选择规律、论文章节规律、常见错误）
+2. **算法文档**: 阅读 `algorithms/` 相关文档中拟选方法的完整章节（公式、代码、适用范围）
+3. **外部文献**: 运行 `python tools/search/paper_search.py --query "<关键词>"` 搜索 **保底 5 篇** 外部文献
+   - arXiv API → Semantic Scholar → OpenAlex，去重后写入文献章节
+   - 记录到 `notes/ProblemAnalysis.md`，附相关性标注
+4. **输出阅读清单**: 在 `notes/ProblemAnalysis.md` 开头附阅读清单表
+
+**门禁规则**: 以上 4 步全部完成后才可进入模型分析。审稿手 Gate 1 将审计阅读清单是否完整 + 规律总结是否存在。
+
+**Mandatory — main**:
 1. Read the problem: extract text from PDF or user description
 2. Check data: analyze files in `data/`
 3. Determine problem type: optimization/prediction/evaluation/classification/ODE/graph/hybrid
@@ -110,6 +127,11 @@ Lead: **建模手**
 Lead: **审稿手** (Switch role — read `roles/审稿手.md`)
 
 **Audit Content**:
+- **阅读审计** (新增): 验证 Stage 1 阅读清单是否完整
+  - [ ] 本地论文 ≥3 篇，有阅读笔记
+  - [ ] 算法文档已阅读（对应方法章节）
+  - [ ] 外部文献 ≥5 篇（运行 paper_search.py 并有结果）
+  - [ ] 阅读清单在 ProblemAnalysis.md 开头
 - **Proof-checker audit**: Verify all formulas have defined symbols, derivation chain complete, AHP/KKT checks pass
 - **Idea audit**: At least 2 approaches compared, each with literature support, selection rationale sufficient
 
@@ -126,6 +148,14 @@ Lead: **审稿手** (Switch role — read `roles/审稿手.md`)
 ## Stage 3: Data Preprocessing
 
 Lead: **编程手** (Switch role — read `roles/编程手.md`)
+
+**Mandatory — Step 0: 算法文档阅读门禁** (必须先完成编程手阅读要求)
+
+**阅读要求**:
+1. **算法文档**: 阅读 `algorithms/` 中 Stage 2 所选方法的完整代码实现章节（代码实现要点 + 可视化图表类型）
+2. **算法源码**: 查看所选方法的示例代码，理解输入输出格式
+3. **数据格式确认**: 对照 `notes/交接清单.md` 的 Input format 列，确认数据格式理解正确
+4. **输出**: 在 `notes/交接清单.md` 末尾确认"算法文档已阅读，数据格式已理解"
 
 **Mandatory**:
 1. Read raw data — `df.info()` `df.describe()`
@@ -195,6 +225,9 @@ Lead: **编程手**
 Lead: **审稿手** (Read `roles/审稿手.md`)
 
 **Audit Content**:
+- **阅读审计** (新增): 验证编程手 Stage 3 的算法文档阅读
+  - [ ] 算法文档阅读已在交接清单中确认
+  - [ ] 代码实现正确使用了所选方法的 API
 - **Code-audit**: Constraint satisfaction, solver consistency, dead code, result provenance
 - **Result-to-Claim**: Claim support mapping — what's supported, what's not, what's missing
 
@@ -233,6 +266,9 @@ Lead: **建模手**
 
 Lead: **审稿手** (Read `roles/审稿手.md`)
 
+**阅读审计** (新增):
+- [ ] 建模手阅读清单已在 Stage 1 完成，Gate 1 已审计通过
+
 **Sensitivity-audit** (ARIS Module 2.3): Run AFTER Stage 6 produces `notes/sensitivity.md`:
 
 | # | Check | Standard |
@@ -252,6 +288,18 @@ Lead: **审稿手** (Read `roles/审稿手.md`)
 ## Stage 7: Paper Writing
 
 Lead: **论文手** (Read `roles/论文手.md`)
+
+**Mandatory — Step 0: 范例论文阅读门禁** (必须先完成论文手阅读要求)
+
+**核心原则**: 读尽可能多，读完后必须总结写作规律。
+
+**阅读要求**:
+1. **优秀论文**: 从 `references/papers/` 按题型子目录阅读 **保底 3 篇** 优秀论文
+   - 重点分析：论文结构、摘要写法、公式排版、图表说明、模型评价
+   - 输出 `notes/阅读笔记.md` 中的"写作借鉴"章节
+   - **必须产出写作规律总结**: 摘要结构模板、章节篇幅比例、图表密度、高频句式
+2. **评阅要点**: 阅读 `references/官方资料/评阅要点/` 中对应年份的评分标准，明确得分点
+3. **阅读清单**: 在论文开头标注参考了哪些论文的结构
 
 **Mandatory**:
 1. **Paper-plan** (ARIS Module 3.1): Build claim-evidence matrix + section topology + figure plan BEFORE writing
@@ -274,6 +322,10 @@ Lead: **论文手** (Read `roles/论文手.md`)
 Lead: **审稿手** (Read `roles/审稿手.md`)
 
 **Audit Content**:
+- **阅读审计** (新增): 验证论文手 Stage 7 的范例论文阅读
+  - [ ] 优秀论文 ≥2 篇，有阅读笔记
+  - [ ] 评阅要点已阅读
+  - [ ] 论文结构参考了优秀论文的排版
 - **Paper-claim-audit** (ARIS Module 5.1): Zero-context verification — every number in paper vs raw result files. Rounding errors, best-seed cherry-picking, range overclaims all exposed.
 - **Citation-audit** (ARIS Module 5.2): Three-layer verification (arXiv→CrossRef→S2) for each reference: existence, metadata correctness, context appropriateness.
 - **Kill-argument** (ARIS Module 5.3): Dual-thread adversarial review — one thread attacks the model evaluation section, the other adjudicates point by point.

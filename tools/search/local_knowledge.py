@@ -222,7 +222,13 @@ def main():
         f"经验: {len(result.get('evolution', []))} 条"
     )
 
-    print(json.dumps(result, indent=2, ensure_ascii=False))
+    output = json.dumps(result, indent=2, ensure_ascii=False)
+    try:
+        print(output)
+    except UnicodeEncodeError:
+        import sys
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        print(output)
 
 
 if __name__ == "__main__":

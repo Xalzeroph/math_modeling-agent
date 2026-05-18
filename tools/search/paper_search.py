@@ -213,8 +213,14 @@ def main():
             pass
 
     results = search_papers(args.query, args.limit, sources, email, s2_key)
-    print(json.dumps({"query": args.query, "count": len(results), "results": results},
-                     indent=2, ensure_ascii=False))
+    output = json.dumps({"query": args.query, "count": len(results), "results": results},
+                        indent=2, ensure_ascii=False)
+    # Windows GBK 兼容：无法编码的字符替换为 ?
+    try:
+        print(output)
+    except UnicodeEncodeError:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        print(output)
 
 
 if __name__ == "__main__":

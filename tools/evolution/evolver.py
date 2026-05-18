@@ -118,6 +118,79 @@ class MathModelEvolver:
             },
         }
 
+    # ═════════════════════════════════════════════════════════
+    # 跨 session 模式沉淀
+    # ═════════════════════════════════════════════════════════
+
+    def pattern_add(self, problem_type: str, category: str, text: str, source: str, session: str) -> dict:
+        """存储一条跨 session 模式规律，自动去重累加 count"""
+        patterns_dir = self.root / "references" / "patterns"
+        patterns_dir.mkdir(parents=True, exist_ok=True)
+        fp = patterns_dir / f"{problem_type}.json"
+
+        store = {"problem_type": problem_type, "patterns": [], "last_updated": _now()}
+        if fp.exists():
+            try:
+                store = json.loads(fp.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+
+        for p in store["patterns"]:
+            if p["category"] == category and p["text"] == text:
+                p["count"] = p.get("count", 1) + 1
+                p["last_session"] = session
+                p["last_updated"] = _now()
+                fp.write_text(json.dumps(store, indent=2, ensure_ascii=False), encoding="utf-8")
+                return {"status": "ok", "action": "incremented", "count": p["count"]}
+
+        store["patterns"].append({
+            "category": category,
+            "text": text,
+            "source": source,
+            "session": session,
+            "count": 1,
+            "created": _now(),
+            "last_updated": _now(),
+        })
+        store["last_updated"] = _now()
+        fp.write_text(json.dumps(store, indent=2, ensure_ascii=False), encoding="utf-8")
+        return {"status": "ok", "action": "created"}
+
+    def pattern_suggest(self, problem_type: str) -> dict:
+        """检索某题型的所有积累模式，按 confirm 次数排序"""
+        fp = self.root / "references" / "patterns" / f"{problem_type}.json"
+        if not fp.exists():
+            return {"status": "no_data", "problem_type": problem_type,
+                    "message": f"没有 {problem_type} 的积累模式", "patterns": []}
+        try:
+            store = json.loads(fp.read_text(encoding="utf-8"))
+        except Exception as e:
+            return {"status": "error", "message": str(e), "patterns": []}
+
+        store["patterns"].sort(key=lambda p: p.get("count", 1), reverse=True)
+        return {
+            "status": "ok",
+            "problem_type": problem_type,
+            "total_patterns": len(store["patterns"]),
+            "last_updated": store.get("last_updated", ""),
+            "patterns": store["patterns"],
+        }
+
+    def pattern_list_all(self) -> dict:
+        """列出所有题型已积累的模式概况"""
+        patterns_dir = self.root / "references" / "patterns"
+        if not patterns_dir.exists():
+            return {"status": "ok", "types": {}}
+        result = {}
+        for fp in sorted(patterns_dir.glob("*.json")):
+            ptype = fp.stem
+            store = json.loads(fp.read_text(encoding="utf-8"))
+            result[ptype] = {
+                "count": len(store.get("patterns", [])),
+                "last_updated": store.get("last_updated", ""),
+            }
+        return {"status": "ok", "types": result}
+
     def suggest(self, problem_type: str) -> dict:
         """从历史 eval_report.json 中检索策略"""
         records = self._scan_sessions()
