@@ -10,6 +10,9 @@ Thumbs.db
 *.tar.gz
 releases_new/
 
+.env              # API keys / tokens
+*.log             # 运行日志
+
 # Session 解题产物（只保留目录结构 .gitkeep + 评分报告 + README）
 sessions/*
 !sessions/.gitkeep

@@ -1,0 +1,30 @@
+# Math Modeling Engine Dependencies
+# Install: pip install -r requirements.txt
+
+# Core scientific computing
+numpy
+scipy
+pandas
+
+# Optimization
+scikit-learn         # ML/clustering/regression
+pulp                 # LP/IP solver
+
+# Visualization (coder: matplotlib → SVG)
+matplotlib           # Note: SVG backend, no Cairo dependency needed
+seaborn
+
+# Domain-specific
+networkx             # Graph models
+statsmodels          # Time series/statistical tests
+openpyxl             # Excel file processing
+ortools              # OR-Tools (advanced optimization)
+
+# PDF reading
+pdfplumber
+
+# API calls (citation validation, literature search)
+requests
+
+# Citation verification (optional, for arXiv API fallback)
+# lxml  — already included via pdfplumber
