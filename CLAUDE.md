@@ -8,17 +8,20 @@ tags: [math, modeling, cumcm, mcm, self-evolving, python]
 
 ## Your Identity
 
-You play three roles, switching by stage:
+You play four roles, switching by stage:
 
 - **Modeler**: problem analysis, model selection, algorithm design → `roles/建模手.md`
 - **Coder**: implementation, visualization, verification → `roles/编程手.md`
 - **Writer**: paper writing, formatting → `roles/论文手.md`
+- **Auditor** ★: independent critique — only finds problems, never fixes them → `roles/审稿手.md`
 
 **Before switching roles, read the corresponding roles/*.md first.**
 
 ## Workflow
 
-Follow the 10-stage SOP in `SOP.md`. The stages guide you, but **progress is driven by your conversation with the user**.
+Follow the 12-stage SOP in `SOP.md`. The stages guide you, but **progress is driven by your conversation with the user**.
+
+Stages: 0(Startup) → 1(Problem Analysis) → 2(Model Selection) → **[Auditor Gate 1]** → 3(Data) → 4(Solve) → 5(Verify) → **[Auditor Gate 2]** → 6(Sensitivity) → 7(Paper) → **[Auditor Gate 3]** → 8(Compile) → 9(Gate+Score) → 10(Evolution) → 11(Package)
 
 你可以：
 - Discuss any stage output with the user at any time
@@ -35,7 +38,7 @@ The user only needs to do one thing:
 
 Your first action:
 ```bash
-mkdir -p sessions/problem_name/{data,notes,solvers,verifications,figures,paper}
+mkdir -p sessions/problem_name/{data,notes,solvers,verifications,figures,paper,assurance}
 ```
 
 ## Startup Checklist (must complete before each problem)
@@ -43,10 +46,12 @@ mkdir -p sessions/problem_name/{data,notes,solvers,verifications,figures,paper}
 Before SOP Stage 1, complete these checks. **Missing any = cannot proceed**:
 
 - [ ] Read `algorithms/index.json`, confirmed `selection_rules`
-- [ ] Ran `evolver.py suggest --problem-type <inferred_type>` to check history
+- [ ] Ran `python tools/assurance/query_pack.py --problem-type <inferred_type>` for cross-session knowledge
+- [ ] Ran `python tools/evolution/evolver.py suggest --problem-type <inferred_type>` to check history
 - [ ] 已用 `python tools/search/local_knowledge.py "<关键词>"` 检索本地知识
-- [ ] Created `sessions/problem_name/` directory structure
+- [ ] Created `sessions/problem_name/{data,notes,solvers,verifications,figures,paper,assurance}` directory structure
 - [ ] Placed PDF and data into `sessions/problem_name/data/`
+- [ ] Confirmed assurance level with user: `draft` (default) or `submission`
 - [ ] Read `roles/建模手.md`, ready for modeler role
 
 ## Algorithm Selection Rules
@@ -66,28 +71,32 @@ After scoring, follow `usage_rules` in `references/empirical_baselines.json`:
 - If total score beats personal best → mark as milestone
 
 Stage outputs:
-  `notes/problem_analysis.md` → `solvers/problem{n}.py` → `verifications/verify{n}.py`
-  → `figures/` → `paper/main.tex` → `paper/main.pdf` → `提交.zip`
+  `notes/problem_analysis.md` → `assurance/idea_audit.json` → `solvers/problem{n}.py`
+  → `verifications/verify{n}.py` → `assurance/code_audit.json` → `figures/`
+  → `paper/main.tex` → `assurance/claim_audit.json` → `assurance/citation_audit.json`
+  → `assurance/gate_manifest.json` → `paper/main.pdf` → `提交.zip`
 
 The modeler determines problem type and confirms with the user.
 
 ---
 
-## 9 Tools
+## 12 Tools
 
 Claude Code cannot do these — call when needed:
 
 | 类别 | 工具 | 干什么 | 什么时候用 |
 |------|------|--------|----------|
-| File Ops | `file_ops/compile_latex.py` | Compile .tex to .pdf (multi-pass) | Stage 8 |
-| File Ops | `file_ops/pdf_extractor.py` | Extract text/tables from PDFs | When reading PDFs |
-| File Ops | `file_ops/data_checker.py` | Encoding detection + data quality report | Stage 3 |
-| File Ops | `file_ops/check_outputs.py` | Post-compile integrity check | Stage 8 |
-| Search | `search/paper_search.py` | Multi-source academic search | Stage 1 |
-| Search | `search/local_knowledge.py` | 3-source local knowledge retrieval | Stage 1 |
-| Evolution | `evolution/scorer.py` | 10-dim scoring + auto-save | Stage 9 |
-| Evolution | `evolution/evolver.py` | Mechanical + insight evolution | Stage 9 |
-| 经验沉淀 | `evolution/scorer.py` | 10维评分+自动保存 eval_report.json | 编译完成后 |
+| File Ops | `tools/file_ops/compile_latex.py` | Compile .tex to .pdf (multi-pass) | Stage 8 |
+| File Ops | `tools/file_ops/pdf_extractor.py` | Extract text/tables from PDFs | When reading PDFs |
+| File Ops | `tools/file_ops/data_checker.py` | Encoding detection + data quality report | Stage 3 |
+| File Ops | `tools/file_ops/check_outputs.py` | Post-compile integrity check | Stage 8 |
+| Search | `tools/search/paper_search.py` | Multi-source academic search | Stage 1 |
+| Search | `tools/search/local_knowledge.py` | 3-source local knowledge retrieval | Stage 1 |
+| Evolution | `tools/evolution/scorer.py` | 10-dim scoring + auto-save | Stage 9 |
+| Evolution | `tools/evolution/evolver.py` | Mechanical + insight evolution | Stage 10 |
+| **Assurance** ★ | `assurance/contract.py` | 6-state verdict engine + SHA256 tracing | Stage 2/5/7/9 |
+| **Assurance** ★ | `assurance/gate.py` | Collect audits → gate_manifest.json | Stage 9 |
+| **Assurance** ★ | `assurance/query_pack.py` | Cross-session knowledge summary | Stage 0/10 |
 
 ## Knowledge Assets
 
@@ -108,25 +117,41 @@ Read these when needed:
 
 ## After Each Problem — Evolution
 
-Two steps: mechanical (Python) + insight (you).
+Three steps: gate + mechanical (Python) + insight (you).
+
+**Step 0: Assurance Gate**
+
+```bash
+python tools/assurance/gate.py collect --session "problem_name" --assurance submission
+```
 
 **Step 1: Mechanical (Python auto)**
 
 ```bash
-python tools/evolution/evolver.py evolve --session "problem_name" --from-scorer题目名称" --from-scorer
+python tools/evolution/evolver.py evolve --session "problem_name" --from-scorer
 ```
 
 Updates: modeler verification table, algorithm marks, structured score analysis.
 
-**Step 2: Insight (you do it)**
+**Step 2: Query Pack Update (Python auto)**
 
-Read evolver analysis JSON (weak/strong areas, anchors), then:
+```bash
+python tools/assurance/query_pack.py --problem-type <type> --save
+```
+
+(Updates the master `query_pack.md` so future sessions can learn from this one's results.)
+
+**Step 3: Insight + Meta-Optimize (you do it)**
+
+Read evolver analysis JSON + gate_manifest.json (weak/strong areas, anchors), then:
 1. Read eval_report.json — full scoring breakdown
-2. Read notes/ — thought process
-3. Read solvers/ + verifications/ — implementation details
-4. **Write 100-200 word experience summary** under role doc anchors:
+2. Read assurance/gate_manifest.json — audit verdicts
+3. Read notes/ — thought process
+4. Read solvers/ + verifications/ — implementation details
+5. **Meta-optimize**: Which stage had most FAIL→fix cycles? Propose 1-3 workflow improvements
+6. **Write 100-200 word experience summary** under role doc anchors:
    - What → Low dims → Why → How to improve
-5. Targets: `MODEL_<type>`, `CODE_<type>`, `WRITING_<chapter>` anchors
+7. Targets: `MODEL_<type>`, `CODE_<type>`, `WRITING_<chapter>`, `AUDIT_<type>` anchors
 
 **Query commands**:
 ```bash
