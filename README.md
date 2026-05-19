@@ -9,12 +9,12 @@ No scripted pipelines — you talk, it works. After each contest, it learns and 
 
 ## Quick Start / 快速开始
 
-1. Drop this folder into Claude Code / 将此文件夹拖入 Claude Code
-2. Say "Help me solve this math modeling problem" (attach the problem PDF) / 说"帮我做这道数模题"
-3. Claude follows the 12-stage SOP naturally through conversation / 按对话自然推进 12 个阶段
-4. Interrupt, backtrack, discuss at any time — conversation IS the pipeline / 可随时打断、回溯、讨论
+1. 将此文件夹拖入 Claude Code
+2. 说"帮我做这道数模题"（附上题目 PDF）
+3. Claude 按 16 阶段 SOP 自然推进
+4. 可随时打断、回溯、讨论 — 对话本身就是流水线
 
-When you start a new problem, Claude creates the full session directory upfront:
+启动时自动创建 session 目录：
 
 ```bash
 mkdir -p sessions/题目名称/{data,notes,solvers,verifications,figures,paper,assurance}
@@ -25,173 +25,108 @@ mkdir -p sessions/题目名称/{data,notes,solvers,verifications,figures,paper,a
 ## Architecture / 架构
 
 ```
-L1: Claude Code (大脑)
-   推理、决策、代码生成、论文写作、对话上下文
+L1: Claude Code (大脑) — 推理、决策、代码生成、论文写作
        │
    ┌───┼───┐
-   │       │       │
-L2: 指引层  L3: 知识层   L4: 工具层
-(行为规范)  (结构化数据)  (确定性操作)
-   │       │       │
-SOP.md     algorithms/  file_ops/
-CLAUDE.md  references/  search/
-roles/*.md sessions/    evolution/
+   │       │        │
+L2: 指引层   L3: 知识层    L4: 工具层
+CLAUDE.md   algorithms/   tools/
+roles/*.md  references/   assurance/
+skills/     sessions/
 ```
 
-L1 reads L2 to know HOW to act (SOP, role specs, checklists, constraints).
-L1 reads L3 to know WHAT is available (algorithms, papers, baselines, past experience).
-L1 calls L4 to do what it CANNOT (compile, search APIs, score, evolve markers).
-L4 writes back to L3 (eval_report.json, evolved_status, verified algorithms).
+L1 读 L2 知 HOW（权限矩阵、16阶段流程、质量基准）
+L1 读 L3 知 WHAT（74算法、~1330论文、评分基线、历史经验）
+L1 调 L4 做机械活（编译、搜索、评分、进化标记）
 
-Core principle: **Python = mechanical work (deterministic, Claude cannot do). Claude Code = insight work (understanding, judgment, writing). Give Claude better information, don't code Claude's decisions.**
-
-核心原则：**Python 做机械活（确定性的，Claude 做不到的）。Claude Code 做洞见活（理解、判断、写作）。给 Claude 更好的信息，而不是替 Claude 做决策。
-
-## 10-Stage SOP / 10 阶段流程
-
-```
-Problem Analysis → Model Selection & Scaffolding → Data Preprocessing 
-→ Model Solving → Verification → Sensitivity Analysis → Paper Writing 
-→ Final Compilation → Scoring & Evolution → Packaging & Submission
-```
-
-| # | Stage / 阶段 | Lead Role / 主导 | Output / 产出 | Tool Used / 工具 |
-|---|-------------|-----------------|---------------|-----------------|
-| 1 | Problem Analysis / 问题分析 | Modeler / 建模手 | `notes/题目分析.md` | `local_knowledge.py`, `paper_search.py`, `evolver.py suggest` |
-| 2 | Model Selection & Scaffolding / 模型选择与构建 | Modeler→Coder | `solvers/problem{n}.py` skeleton / 骨架 | — |
-| 3 | Data Preprocessing / 数据预处理 | Coder / 编程手 | Cleaned data / 规范化数据 | `data_checker.py` |
-| 4 | Model Solving / 模型求解 | Coder / 编程手 | `solvers/*.py` + `figures/` | — |
-| 5 | Verification / 模型验证 | Coder / 编程手 | `verifications/verify{n}.py` | — (Claude runs directly) |
-| 6 | Sensitivity Analysis / 灵敏度分析 | Modeler / 建模手 | `notes/sensitivity.md` | — |
-| 7 | Paper Writing / 论文撰写 | Writer / 论文手 | `paper/main.tex` | — (copy template first, fill without modifying format) |
-| 8 | Final Compilation / 最终编译 | Writer / 论文手 | `paper/main.pdf` | `compile_latex.py`, `check_outputs.py` |
-| 9 | Scoring & Evolution / 评分进化 | — | Score report + evolved roles / 评分报告+进化 | `scorer.py`, `evolver.py --from-scorer` |
-| 10 | Packaging & Submission / 打包提交 | — | `提交.zip` | — |
-
-### Hard Gates / 硬门禁
-
-1. Verification must ALL PASS before entering paper stage / 验证全部 PASS 才进论文
-2. LaTeX template format MUST NOT be modified — only fill content inside `\begin{document}...\end{document}` / 禁止修改模板格式
-3. Every figure must have ≥100 words of analysis — no naked figures / 每张图 ≥100 字分析
-4. Never modify raw data files in `data/` / 禁止修改原始数据文件
-5. Never create simplified/alternative code to dodge problems / 禁止创建简化版代码
-6. Never skip verification and silently proceed / 禁止跳过验证
-7. Never claim code is "verified" without actually running it / 禁止未运行就声称已验证
-
-### Verification Protocols / 验证标准
-
-**Optimization Models (LP/QP/MIP/NLP):**
-- [V-OPT-1] Constraint feasibility — all constraints strictly satisfied
-- [V-OPT-2] Cross-validation with alternative solver
-- [V-OPT-3] Perturbation testing
-- [V-OPT-4] Quick sensitivity check
-
-**Regression/ML Models:**
-- [V-REG-1] Residual normality — Shapiro-Wilk test (p > 0.05)
-- [V-REG-2] Heteroscedasticity — Breusch-Pagan test
-- [V-REG-3] Autocorrelation — Durbin-Watson (1.5 < DW < 2.5)
-- [V-REG-4] 5-fold cross-validation
-- [V-REG-5] Bootstrap stability
-
-**ODE/Dynamics Models:**
-- [V-ODE-1] Conservation law verification
-- [V-ODE-2] Boundary condition check
-- [V-ODE-3] Grid convergence
-- [V-ODE-4] Known analytical solution comparison
-
-**Graph/Network Models:**
-- [V-GRF-1] Path validity
-- [V-GRF-2] Flow conservation
-- [V-GRF-3] Small-scale brute-force verification
-
-### Model Selection Principles / 模型选择三原则
-
-1. Use elementary methods when they suffice — don't reach for advanced ones
-2. Use simple methods when they work — don't reach for complex ones
-3. Use methods more people can understand — don't reach for obscure ones
+核心原则：**Python 做机械活，Claude Code 做洞见活。给 Claude 更好的信息，不是替 Claude 做决策。**
 
 ---
 
-## 9 Tools / 9 个工具
-
-Python = 机械活 (确定性的，Claude 做不到), Claude Code = 洞见活 (需要理解和判断)
-
-| Category / 类别 | Tool / 工具 | Purpose / 用途 | When / 时机 |
-|----------------|------------|---------------|------------|
-| **File Ops** | `file_ops/compile_latex.py` | Compile .tex to .pdf (xelatex/pdflatex multi-pass) | Stage 8 |
-| | `file_ops/pdf_extractor.py` | Extract text and tables from PDFs | Reading problem PDFs |
-| | `file_ops/data_checker.py` | Deterministic encoding detection + data quality report | Stage 3 |
-| | `file_ops/check_outputs.py` | Post-compile integrity (encoding, figure refs, solver-verify pairs, pages) | Stage 8 |
-| | `file_ops/batch_extract.py` | Batch PDF stats extraction (pages, chars, figures, tables, equations) | Paper library analysis |
-| **Search** | `search/paper_search.py` | Multi-source academic search (arXiv + OpenAlex + Semantic Scholar) | Stage 1 |
-| | `search/local_knowledge.py` | Synonym-mapped local search (algorithms + papers + evolution) | Stage 1 |
-| **Evolution** | `evolution/scorer.py` | 10-dim percentile scoring, auto-saves to `eval_report.json` | Stage 9 |
-| | `evolution/evolver.py` | Mechanical work: update verified algorithm tables, mark index.json, produce structural score analysis. Claude Code writes experiential insights to role docs. | Stage 9 |
-
-### Tool Usage Flow / 工具调用流
+## 16-Stage SOP / 16 阶段流程
 
 ```
-Stage 1:  local_knowledge.py "关键词"              → algorithms + papers + past scores
-          paper_search.py --query "..."            → external academic papers
-          evolver.py suggest --problem-type X      → best strategy + weak_dimensions
-
-Stage 3:  data_checker.py info --file ...          → deterministic encoding/format report
-
-Stage 8:  compile_latex.py compile --mode cumcm
-          check_outputs.py --session "..."         → integrity checks
-
-Stage 9:  scorer.py --session "..." --mode standard  → scoring + auto-save eval_report.json
-          evolver.py evolve --session "..." --from-scorer  → mechanical work + analysis JSON
-          (then Claude Code reads analysis + session files, writes experience to role doc anchors)
+S0 → S1 → S2 → S3 → S4 → S5 → S6 → S7 → S8 → S9 → S10 → S11 → S12 → S13 → S14 → S15
+启动  分析  选择  ⏣审计  数据  求解  验证  ⏣审计  灵敏度 ⏣审计  论文  ⏣审计   编译   评分   进化   打包
 ```
+
+| # | Stage | Role | Output |
+|---|-------|------|--------|
+| S0 | Startup & Pre-flight | 建模手 | Session dir + `assurance/level.txt` |
+| S1 | Problem Analysis + 阅读门禁 | 建模手 | `notes/ProblemAnalysis.md`, `notes/阅读笔记_建模.md` |
+| S2 | Model Selection & Scaffolding | 建模手 | `notes/交接清单.md` |
+| S3 | ⏣ Model Audit (Gate 1) | 审稿手 | `assurance/proof_audit.json`, `idea_audit.json` |
+| S4 | Data Preprocessing + 阅读门禁 | 编程手 | Preprocessed data |
+| S5 | Model Solving | 编程手 | `solvers/*.py`, `figures/`, `results/` |
+| S6 | Model Verification | 编程手 | `verifications/*.py`, `notes/trial_log.md` |
+| S7 | ⏣ Implementation Audit (Gate 2) | 审稿手 | `assurance/code_audit.json`, `claim_map.md` |
+| S8 | Sensitivity Analysis | 建模手 | `notes/sensitivity.md` |
+| S9 | ⏣ Sensitivity Audit (Gate 3) | 审稿手 | `assurance/sensitivity_audit.json` |
+| S10 | Paper Writing + 阅读门禁 | 论文手 | `paper/main.tex` |
+| S11 | ⏣ Paper Audit (Gate 4) | 审稿手 | `assurance/claim_audit.json`, etc. |
+| S12 | Final Compilation | 论文手 | `paper/main.pdf` |
+| S13 | Assurance Gate & Scoring | 自动 | `gate_manifest.json`, `eval_report.json` |
+| S14 | Evolution & Knowledge | 自动+AI | Role doc EVOLUTION anchors updated |
+| S15 | Packaging & Submission | — | `提交.zip` |
+
+每个 `⏣` 是硬审计关卡，不可跳过。
+
+### Runtime Rules / 运行时规则
+
+1. **写入权限矩阵**: 每个阶段有明确的目录写/禁写权限
+2. **前置依赖**: 进入任何阶段前检查产物文件是否存在
+3. **质量分级**: 每个产出按可接受□/良好✅/优秀⭐ 三级评价
+4. **致命度分级**: 审稿手用 🔴BLOCKED / 🟡WARN / 🟢PASS 三级判决
+
+### Model Selection Principles / 模型选择三原则
+
+1. 能用初等方法解决的就不用高等方法
+2. 能用简单方法解决的就不用复杂方法
+3. 能用被更多人看懂理解的方法就不用少数人懂的方法
+
+### Verification Protocols / 验证标准
+
+| Model Type | Checks |
+|-----------|--------|
+| Optimization | [V-OPT] Constraint feasibility, Cross-verification, Perturbation test |
+| Regression/ML | [V-REG] Shapiro-Wilk, Breusch-Pagan, Durbin-Watson, 5-fold CV |
+| ODE/Dynamics | [V-ODE] Conservation, Boundary conditions, Grid convergence |
+| Network/Graph | [V-GRF] Path legality, Flow conservation, Small-scale brute force |
+
+---
+
+## 12 Tools / 工具
+
+Python = 机械活, Claude Code = 洞见活
+
+| Category | Tool | Purpose | Stage |
+|----------|------|---------|-------|
+| File Ops | `compile_latex.py` | Compile .tex to .pdf (multi-pass) | S12 |
+| | `pdf_extractor.py` | Extract text/tables from PDFs | S1 |
+| | `data_checker.py` | Encoding detection + data quality | S4 |
+| | `check_outputs.py` | Post-compile integrity check | S12 |
+| Search | `paper_search.py` | Multi-source academic search | S1 |
+| | `local_knowledge.py` | 3-source local knowledge retrieval | S0-S1 |
+| Evolution | `scorer.py` | 10-dim scoring + auto-save | S13 |
+| | `evolver.py` | Mechanical + insight evolution | S14 |
+| Assurance | `contract.py` | 6-state verdict engine + SHA256 tracing | S2-S13 |
+| | `gate.py` | Collect audits → gate_manifest.json | S13 |
+| | `query_pack.py` | Cross-session knowledge summary | S0/S14 |
 
 ---
 
 ## Knowledge Assets / 知识资产
 
-| Asset / 资产 | Location / 位置 | Content / 内容 |
-|-------------|----------------|----------------|
-| Algorithm Library / 算法库 | `algorithms/index.json` + `algorithms/*.md` | 9 domains, 27 subdomains, 74 methods with 46 cross-references + MATLAB→Python mapping |
-| Paper Library / 论文库 | `references/papers/` | **~1330 indexed PDFs** in 6 categories / 28 subcategories |
-| Scoring Baselines / 评分基线 | `references/empirical_baselines.json` | 10-dimension p25/p50/p75 distributions with confidence levels |
-| Antipattern Library / 反模式库 | Embedded in role EVOLUTION anchors | 28 antipatterns distributed by topic (abstract/assumptions/model/code/verification/sensitivity) |
-| Official Review Criteria / 评阅要点 | `references/官方资料/评阅要点/` | 2004-2018 CUMCM official review criteria |
-| Experience Sharing / 经验分享 | `references/官方资料/经验分享/` | Modeling tutorials, paper writing guides, MCM tips |
-| Historical Scores / 历史评分 | `sessions/*/eval_report.json` | Auto-saved score reports, queried by evolver for strategy suggestions |
-| LaTeX Templates / LaTeX模板 | `templates/` | CUMCM (国赛) + MCM/ICM (美赛) + MCM memo template |
-| Evolution Records / 进化记录 | `roles/建模手.md`, `编程手.md`, `论文手.md` evolution sections | Accumulated experience in each role doc |
-| Paper Metadata Index / 论文元数据 | `references/papers_metadata.json` | 1330 papers with year, contest, problem, award, team_id |
-
-### Paper Library Structure / 论文库结构
-
-| Category / 大类 | Subcategories / 子类 | Papers / 篇数 |
-|----------------|---------------------|--------------|
-| Optimization / 优化类 | Linear Programming, Genetic Algorithm, Dynamic Programming | 142 |
-| Evaluation / 评价类 | AHP, TOPSIS, Fuzzy Comprehensive Evaluation | 112 |
-| Prediction / 预测类 | Time Series, Grey Prediction, Grey Relational | 70 |
-| Statistics / 统计类 | Regression, Clustering, PCA, SVM, Interpolation, Logistic, Factor, Variance, CCA | 609 |
-| Graph & Network / 图论网络类 | Shortest Path, Cellular Automata, Decision Tree | 91 |
-| Simulation & Comprehensive / 仿真综合类 | Simulated Annealing, ACO, PSO, Neural Networks, Queuing, Monte Carlo, Markov, etc. | 221 |
-| **Total / 总计** | **28 subcategories** | **~1330** |
-
----
-
-## Self-Evolution / 自进化
-
-After each problem (Stage 9), the evolver writes to **4 files**:
-
-| File / 文件 | What is updated / 更新内容 |
-|------------|--------------------------|
-| `roles/建模手.md` | Experience section (success) / Lesson section (failure) / Verified algorithms table |
-| `roles/编程手.md` | Code templates (latest working solver) / Pitfalls (failed attempts) |
-| `roles/论文手.md` | Paper case studies (abstract + section structure) / Writing lessons |
-| `algorithms/xx.md` | `<!-- EVOLVED: verified ... -->` tag on matching algorithm headers |
-
-Before the next problem, Claude reads these to get smarter:
-```bash
-evolver.py suggest --problem-type optimization  → best strategy + failure patterns
-evolver.py gaps                                 → uncovered problem types + unverified algorithms
-```
+| Asset | Location | Content |
+|-------|---------|---------|
+| Algorithm Library | `algorithms/index.json` + `algorithms/*.md` | 9 domains, 27 subdomains, 74 methods |
+| Paper Library | `references/papers/` | ~1330 indexed PDFs, 6 categories / 28 subcategories |
+| Scoring Baselines | `references/empirical_baselines.json` | 10-dim p25/p50/p75 |
+| Antipattern Library | Embedded in role EVOLUTION anchors | 28 antipatterns |
+| Review Criteria | `references/官方资料/评阅要点/` | CUMCM 2004-2018 |
+| Experience Sharing | `references/官方资料/经验分享/` | Tutorials, writing guides |
+| LaTeX Templates | `templates/` | CUMCM + MCM templates |
+| Evolution Records | `roles/` EVOLUTION sections | Accumulated experience |
 
 ---
 
@@ -199,42 +134,61 @@ evolver.py gaps                                 → uncovered problem types + un
 
 ```
 E:\math_modeling\
-├── CLAUDE.md              # Entry point — identity + modeling flow + tool reference
-├── SOP.md                 # 12-stage SOP + ARIS assurance framework
-├── README.md              # This file
+├── CLAUDE.md                  # 入口 — 权限矩阵 + 16阶段流程 + 工具索引
+├── README.md                  # 本文件（人类文档）
 │
-├── algorithms/            # Algorithm knowledge base
-│   ├── index.json         #   9 domains / 27 subdomains / 74 methods
-│   ├── code_index.json    #   MATLAB → Python mapping
-│   ├── code/              #   Historical contest code (MATLAB/Jupyter)
-│   └── 01~07-*.md         #   Detailed algorithm docs with cross-references
+├── algorithms/                # 算法知识库
+│   ├── index.json             #   9 domains / 27 subdomains / 74 methods
+│   └── 01~07-*.md             #   详细算法文档
 │
-├── roles/                 # Role documents (self-evolving)
-│   ├── 建模手.md           #   Modeler
-│   ├── 编程手.md           #   Coder
-│   ├── 论文手.md           #   Writer
-│   ├── 审稿手.md           #   Auditor ★ (ARIS assurance)
-│   └── 路径说明.md         #   Path reference table
+├── roles/                     # 角色文档（自进化）
+│   ├── 建模手.md               #   Modeler: 写入权限 + 质量基准 + 执行流程 + EVOLUTION
+│   ├── 编程手.md               #   Coder: 同上结构
+│   ├── 论文手.md               #   Writer: 同上结构
+│   ├── 审稿手.md               #   Auditor ★: 只审不修 + 致命度分级
+│   └── 路径说明.md             #   Path reference
 │
-├── skills/                # Executable skill instructions (ARIS)
-│   ├── audit/             #   6 auditor skills
-│   ├── modeling/          #   2 modeler skills
-│   └── writing/           #   7 writer skills
+├── skills/                    # 执行指令（按需调用）
+│   ├── audit/ (7 files)
+│   ├── modeling/ (2 files)
+│   └── writing/ (6 files)
 │
-├── templates/             # LaTeX templates
-│   ├── latex_template.tex #   CUMCM (国赛)
-│   ├── mcm_template.tex   #   MCM/ICM (美赛)
-│   └── mcm_memo_template.tex
+├── templates/                 # LaTeX 模板
+│   ├── latex_template.tex     #   CUMCM (国赛)
+│   └── mcm_template.tex       #   MCM/ICM (美赛)
 │
-├── tools/                 # Python CLI tools (what Claude cannot do)
-│   ├── file_ops/          #   Deterministic file operations
-│   │   ├── compile_latex.py
-│   │   ├── pdf_extractor.py
-│   │   ├── data_checker.py
-│   │   └── check_outputs.py
-│   ├── search/            #   Information retrieval
-│   │   ├── paper_search.py
-│   │   └── local_knowledge.py
-│   └── evolution/         #   Experience accumulation
-│       ├── scorer.py
-│       └── evolver.py
+├── tools/                     # Python CLI 工具
+│   ├── assurance/ (contract.py, gate.py, query_pack.py)
+│   ├── evolution/ (evolver.py, scorer.py)
+│   ├── file_ops/ (compile, extract, check, svg2pdf, data)
+│   └── search/ (paper_search.py, local_knowledge.py)
+│
+├── references/
+│   ├── papers/                #   6 类 ~1330 篇论文 (PDF gitignored)
+│   ├── papers_metadata.json
+│   ├── empirical_baselines.json
+│   ├── patterns/              #   反模式库
+│   └── 官方资料/              #   评阅要点 + 经验分享
+│
+└── sessions/                  # 问题存档
+    └── 问题名/                 #   每题的完整记录
+```
+
+---
+
+## Self-Evolution / 自进化
+
+每个问题完成后 (S14), evolver 更新:
+
+| File | What is updated |
+|------|----------------|
+| `roles/建模手.md` | Experience section + Verified algorithms table |
+| `roles/编程手.md` | Code templates + Pitfalls |
+| `roles/论文手.md` | Paper case studies + Writing lessons |
+
+下次问题启动时自动加载:
+```bash
+evolver.py suggest --problem-type optimization   → best strategy
+evolver.py gaps                                  → uncovered types
+query_pack.py --problem-type X                   → cross-session knowledge
+```
