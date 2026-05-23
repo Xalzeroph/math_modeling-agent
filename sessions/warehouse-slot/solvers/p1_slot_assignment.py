@@ -132,7 +132,7 @@ def greedy_assignment_cell(df_inv, df_slots, df_cells):
                         tt = slot_tt.get(sid, 0)
                         if is_deep:
                             # 深位且浅位非本材料 → 倒腾惩罚
-                            shallow_sid = sid[:-2] + '_01'
+                            shallow_sid = sid.rsplit("_", 1)[0] + '_01'
                             owner = cell_shallow_owner.get(shallow_sid)
                             if owner != mat_id:
                                 total_penalty_tt += tt + T_LOAD_UNLOAD
@@ -519,8 +519,8 @@ def main():
 
     # 统计配对率
     paired = sum(1 for sid in occupied_g if sid[-1] == '2'
-                 and sid[:-2] + '_01' in cell_owner
-                 and cell_owner.get(sid[:-2] + '_01') == occupied_g[sid])
+                 and sid.rsplit("_", 1)[0] + '_01' in cell_owner
+                 and cell_owner.get(sid.rsplit("_", 1)[0] + '_01') == occupied_g[sid])
     deep_count = sum(1 for sid in occupied_g if sid[-1] == '2')
     pairing_rate = paired / deep_count * 100 if deep_count > 0 else 0
     print(f"  同类材料配对率 (深位): {paired}/{deep_count} = {pairing_rate:.1f}%")
@@ -539,7 +539,7 @@ def main():
             for sid in slot_ids:
                 base_tt = df_slots[df_slots['slot_id'] == sid]['travel_time'].values[0]
                 if sid[-1] == '2':  # 深位：检查是否有同材料浅位配对
-                    shallow_sid = sid[:-2] + '_01'
+                    shallow_sid = sid.rsplit("_", 1)[0] + '_01'
                     shallow_mat = occupied_ga.get(shallow_sid)
                     if shallow_mat != mat_id:
                         base_tt += T_LOAD_UNLOAD  # 无配对 → 倒腾惩罚
