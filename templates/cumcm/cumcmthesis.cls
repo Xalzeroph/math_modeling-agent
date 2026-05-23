@@ -114,7 +114,7 @@
 \lhead{\small\sffamily \team}
 \rhead{\small\sffamily 全国大学生数学建模竞赛}
 \cfoot{\xiaowuhao\sffamily \thepage}
-\setlength\parskip{1.5\baselineskip}
+\setlength\parskip{0pt}
 \renewcommand\tableofcontents{%
     \centerline{\normalfont\Large\bfseries\contentsname
         \@mkboth{%
@@ -129,8 +129,8 @@
 \renewcommand{\topfraction}{0.85}
 \renewcommand{\bottomfraction}{0.65}
 \renewcommand{\floatpagefraction}{0.60}
-\renewcommand{\figurename}{\song\wuhao 图}
-\renewcommand\tablename{\song\wuhao 表}
+\renewcommand{\figurename}{\song\xiaosihao 图}
+\renewcommand\tablename{\song\xiaosihao 表}
 \graphicspath{{./}{./img/}{./fig/}{./image/}{./figure/}{./picture/}
             {./imgs/}{./figs/}{./images/}{./figures/}{./pictures/}}
 \def\maketitle{%
@@ -193,7 +193,7 @@
     {\LARGE\HEI\textbf{参 赛 承 诺 书}}
   \end{center}
   \vspace{1cm}
-  {\song\xiaosihao
+  {\song\xiaosihao\parindent=2em\indent
   我们仔细阅读了《全国大学生数学建模竞赛章程》和《全国大学生数学建模竞赛参赛规则》（以下简称为''竞赛章程和参赛规则''，可从全国大学生数学建模竞赛网站下载）。
 
   我们完全明白，在竞赛开始后参赛队员不能以任何方式（包括电话、电子邮件、网上咨询等）与队外的任何人（包括指导教师）研究、讨论与赛题有关的问题。

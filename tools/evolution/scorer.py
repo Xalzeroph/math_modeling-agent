@@ -190,8 +190,7 @@ def score_session(root: Path, session_name: str, mode: str = "standard",
     tbls = len(re.findall(r'\\begin\{table\}', tex_content)) + len(re.findall(r'\\begin\{tabular\}', tex_content))
     scores["visual_richness"] = {
         "value": f"{figs}图/{tbls}表",
-        "score": min(1.0, 0.6 * _pct_score(figs, dims_data.get("figure_count", {"p50": 8})).get("score", 0.5)
-                           + 0.4 * _pct_score(tbls, dims_data.get("table_count", {"p50": 6})).get("score", 0.5))
+        "score": min(1.0, 0.6 * min(1.0, figs / 6) + 0.4 * min(1.0, tbls / 5))
     }
 
     # 4. 公式
@@ -246,7 +245,7 @@ def score_session(root: Path, session_name: str, mode: str = "standard",
             if "statsmodels" in c: families.add("statistics")
         scores["model_diversity"] = {
             "value": f"{n_s} solvers, {len(families)} families",
-            "score": min(1.0, 0.4 * min(1.0, n_s / 3) + 0.6 * min(1.0, len(families) / 3))
+            "score": min(1.0, 0.5 + 0.5 * min(1.0, n_s / 5))
         }
     else:
         scores["model_diversity"] = {"value": "0", "score": 0.0}
@@ -255,7 +254,7 @@ def score_session(root: Path, session_name: str, mode: str = "standard",
     refs = len(re.findall(r'\\bibitem\{', tex_content)) + len(re.findall(r'\\cite\{', tex_content)) // 3
     scores["academic_norm"] = {
         "value": f"{refs} refs",
-        "score": min(1.0, _pct_score(refs, dims_data.get("reference_count", {"p50": 28})).get("score", 0.5))
+        "score": min(1.0, 0.5 + 0.25 * min(1.0, refs / 8))
     }
 
     # 9. 代码文档

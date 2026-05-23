@@ -5,14 +5,25 @@
 %%  基于 LaTeX工作室 数维杯模板 v4 (2025/04/26) 改编
 %%  编译方式: xelatex main.tex (运行两次以更新交叉引用)
 %% ═══════════════════════════════════════════════════════════
+%
+% ========== 排版规则速查 ==========
+% 1. 编译：xelatex × 3 次（第一次写aux，第二/三次解析）
+% 2. 浮动控制：\usepackage{placeins} + 每\subsubsection前\FloatBarrier
+% 3. 避免大段空白：图表用[htbp]而非[H]（符号表除外）
+% 4. 公式编号：全文自动连续编号，手写"式(X)"需与自动编号一致
+% 5. 算法伪代码：三线表环境，\footnotesize字号，p{0.75\textwidth}
+% 6. 摘要：独立一页，首行缩进2em，三类加粗（模型名+方法名+核心数值）
+% 7. 图表：图名在下，表名在上，每图后≥100字分析
+% =================================
 
 \documentclass[a4paper]{cumcmthesis}
 
 % ═══ 基础宏包 ═══
 \usepackage{graphicx}
+\usepackage{placeins}       % 提供\FloatBarrier（防图表跨子节）
 \usepackage{booktabs, colortbl}
 \usepackage{longtable, multirow, tabularx}
-\usepackage{float}
+\usepackage{float}          % 提供[H]（仅符号表使用）
 \usepackage{xcolor}
 \usepackage{tikz}
 \usepackage{pgfplots}
@@ -28,308 +39,162 @@
     titleinsheet = false,
     keywordsinsheet = false,
     titlepage = true,
-    abstract = true
 }
 
-% ═══ 额外工具宏包 ═══
-\usepackage{xurl}
-\usepackage[titles]{tocloft}
-\usepackage{paralist}
-\usepackage{setspace}
-\usepackage[numbers,sort&compress]{natbib}
-
-% ═══ Python 代码高亮样式 ═══
-\definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{codeblue}{rgb}{0.13,0.29,0.53}
-\definecolor{backcolour}{rgb}{0.97,0.97,0.97}
-
-\lstdefinestyle{pythonstyle}{
-    backgroundcolor=\color{backcolour},
-    commentstyle=\color{codegray}\itshape,
-    keywordstyle=\color{codeblue}\bfseries,
-    stringstyle=\color{codepurple},
-    basicstyle=\ttfamily\footnotesize,
-    breaklines=true, keepspaces=true,
-    numbers=left, numbersep=5pt, numberstyle=\tiny\color{codegray},
-    showspaces=false, showstringspaces=false,
-    tabsize=4, frame=single, rulecolor=\color{black!20}, language=Python
-}
-
-% ═══ 字体配置 ═══
-\setmainfont{Times New Roman}
-\setmonofont[Path=fonts/, UprightFont=*-Regular, BoldFont=*-Bold, ItalicFont=*-Italic]{UbuntuMono}
-
-% ═══ 行距 ═══
-\setstretch{1.5}
-
-% ═══ 标题样式 ═══
-\ctexset{
-  section={format+=\zihao{3}\heiti\raggedright, name={,、}, number=\chinese{section},
-    beforeskip=1.5ex plus 0.5ex minus .5ex, afterskip=0.5ex plus 0.2ex minus .2ex, aftername=\hspace*{0pt}},
-  subsection={format+=\zihao{4}\heiti\raggedright,
-    beforeskip=1.0ex plus 0.2ex minus .2ex, afterskip=1.0ex plus 0.2ex minus .2ex, aftername=\hspace{6pt}},
-  subsubsection={format+=\zihao{-4}\heiti\raggedright,
-    beforeskip=1.0ex plus 0.2ex minus .2ex, afterskip=1.0ex plus 0.2ex minus .2ex},
-}
-
-% ═══ 目录样式（美赛用） ═══
-\renewcommand{\cftdot}{$\cdot$}
-\renewcommand{\cftdotsep}{1}
-\setlength{\cftbeforesecskip}{1pt}
-\renewcommand{\cftsecfont}{\zihao{-4}\songti}
-\renewcommand{\cftsubsecfont}{\zihao{-4}\songti}
-\renewcommand{\cftsecpagefont}{\zihao{-4}}
-\renewcommand{\cftsecleader}{\cftdotfill{\cftsecdotsep}}
-\renewcommand{\cftsecdotsep}{\cftdotsep}
-
-% ═══ 紧凑列表 ═══
-\let\itemize\compactitem
-\let\enditemize\endcompactitem
-\let\enumerate\compactenum
-\let\endenumerate\endcompactenum
-
-% ═══ 公式间距 ═══
-\setlength\abovedisplayskip{3pt plus 1pt minus 1pt}
-\setlength\belowdisplayskip{3pt plus 1pt minus 1pt}
-
-% ═══ 辅助命令 ═══
-\newcommand\wordc[1]{\textbf{#1}}
-\renewcommand{\appendixtocname}{附\quad 录}
-\renewcommand{\appendices}{\hspace{-2em}{\sanhao\HEI {\bf 附~~~录}}}
-\colorlet{tableheadcolor}{gray!25}
-\newcommand{\headcol}{\rowcolor{tableheadcolor}}
-
-% ═══ 定理环境 ═══
-\newtheorem{assumption}{假设}[section]
-
-% ═══ 图表标题 ═══
-\usepackage[font=small,labelfont={bf,sf},tableposition=top]{caption}
-
-% ═══ 自定义数学命令 ═══
-\newcommand{\prob}[1]{\mathbf{P}\left(#1\right)}
-\newcommand{\E}[1]{\mathbb{E}\left[#1\right]}
-\newcommand{\norm}[1]{\left\|#1\right\|}
-\newcommand{\R}{\mathbb{R}}
-\newcommand{\cM}{\mathcal{M}}
-\newcommand{\cS}{\mathcal{S}}
-\newcommand{\cO}{\mathcal{O}}
+% ═══ 自定义命令 ═══
+% 使用说明：摘要中的加粗用\textbf{}，正文中的加粗仅保留给摘要
+\newcommand{\E}{\mathbb{E}}
 \newcommand{\cC}{\mathcal{C}}
+\newcommand{\cO}{\mathcal{O}}
+\newcommand{\cS}{\mathcal{S}}
+\newcommand{\cI}{\mathcal{I}}
+\newcommand{\cT}{\mathcal{T}}
+\newcommand{\cM}{\mathcal{M}}
 \newcommand{\ftilde}{\tilde{f}}
 
-% ═══ 标题 ═══
-\title{论文题目（三号黑体，居中）}
-\date{}
-
+% ============================================================
+%  正文开始
+% ============================================================
 \begin{document}
 
-\maketitle
+% ═══════════════ 1. 摘要 ═══════════════
+% 【规则】
+% - 独立一页（国赛第3页，前2页为承诺书+编号页）
+% - 首行缩进2em（\setlength{\parindent}{2em}）
+% - 首段：只写"问题+模型+方法+目标"四要素
+% - 每子问题段：3-5行，含模型名（加粗）+方法+数值（加粗）
+% - 摘要页顶部为论文标题（三号黑体居中）
+% - 关键词加粗，用分号分隔
+% - 最后一句必须是总结性结论，不以灵敏度结尾
+\setlength{\parindent}{2em}
 
-% ──────────── 摘要（独立页，第3页）────────────
-\newpage
-\thispagestyle{empty}
-\vspace*{-1.5cm}
-\begin{center}
-{\heiti\sanhao 论文题目（三号黑体，居中）}
-\vspace{0.8em}
+\begin{abstract}
+摘要在各段中加粗以下三类：
+（1）自创指标/模型名：货位热度指标、货格配对策略、二分图最大权匹配
+（2）核心方法：遗传算法、Hungarian算法
+（3）关键数值：20.98s、99.0%、4.78h、1640对
 
-{\heiti\xiaosanhao\textbf{摘\quad 要}}
-\end{center}
-\vspace{0.5em}
+注意：正文段落中不加粗任何概念名，加粗只在摘要中出现。
+\end{abstract}
 
-{\song\xiaosihao\setlength{\parindent}{2em}\setlength{\baselineskip}{20pt}
-
-本文针对XXX问题，建立了\textbf{XXX模型}，采用\textbf{XXX方法}进行求解。摘要需包含问题背景、所用模型（名称加粗）、核心方法（名称加粗）、关键数值结果（数值加粗）。
-
-\vspace{0.8em}
-\noindent\textbf{关键词：}\textbf{模型名称}；\textbf{方法名称}；关键术语
-}
-
-\newpage
-\setcounter{page}{1}
-\pagestyle{fancy}
-
-% ═══════════════════════════════════════════
-%  正文（从第4页开始）
-% ═══════════════════════════════════════════
-
-% ──────────── 1. 问题重述 — 连续段落，不分小节 ────────────
+% ═══════════════ 2. 问题重述 ═══════════════
+% 【规则】
+% - 不分小节（无\subsection）
+% - 连续两段：首段背景+数据参数，次段五问题各一句话
+% - 不用\begin{enumerate}列问题
 \section{问题重述}
 
-（阐述题目背景，描述仓库系统的基本参数和给定的数据。用自己的语言重述，不复制原题。）
-
-本文需解决五个递进子问题。\textbf{问题一}要求……\textbf{问题二}基于问题一的分配方案……\textbf{问题三}引入并发入库作业……\textbf{问题四}将匀速模型推广到非线性……\textbf{问题五}在库存动态变化场景下……
-
-% ──────────── 2. 问题分析 ────────────
+% ═══════════════ 3. 问题分析 ═══════════════
+% 【规则】
+% - 每题一段（\subsection{问题X的分析}），点明数学本质和求解思路
+% - 不写具体数据规模
 \section{问题分析}
 \subsection{问题一的分析}
-（分析问题的数学本质、难点，说明选用某数学模型的理由，并简述求解思路。）
-
-% 流程图示例
-\begin{figure}[htbp]
-\centering
-\begin{tikzpicture}[
-    box/.style={rectangle, rounded corners, draw=black, fill=blue!10,
-                text width=3cm, align=center, minimum height=0.8cm},
-    arrow/.style={-Stealth, thick}
-]
-    \node[box] (input)  {读取数据};
-    \node[box, right=1.2cm of input]  (preprocess) {数据预处理};
-    \node[box, right=1.2cm of preprocess] (model) {建立模型};
-    \node[box, right=1.2cm of model]  (solve) {求解};
-    \node[box, right=1.2cm of solve]  (output) {输出结果};
-    \draw[arrow] (input) -- (preprocess);
-    \draw[arrow] (preprocess) -- (model);
-    \draw[arrow] (model) -- (solve);
-    \draw[arrow] (solve) -- (output);
-\end{tikzpicture}
-\caption{问题一求解流程图}
-\label{fig:flow1}
-\end{figure}
-
 \subsection{问题二的分析}
 \subsection{问题三的分析}
 \subsection{问题四的分析}
 \subsection{问题五的分析}
 
-% ──────────── 3. 模型假设 — 只列重点假设，不写依据 ────────────
+% ═══════════════ 4. 模型假设 ═══════════════
+% 【规则】
+% - 5条核心假设
+% - 直接写结论，不写"为使模型具有可操作性..."等引导句
+% - 不写"依据："理由
+% - 不写不重要假设（如"系统连续运行""不考虑故障"）
 \section{模型假设}
-
 \begin{assumption}
-堆垛机水平与垂直运动独立驱动，行程时间为两方向时间的最大值。
+堆垛机水平与垂直运动独立驱动。
 \end{assumption}
 
-\begin{assumption}
-堆垛机一次可叉取两箱（双货叉），单次上下料时间为常数 $T_{\text{load}}=10$s。
-\end{assumption}
-
-\begin{assumption}
-各巷道独立作业，堆垛机不跨巷道调度。倒腾操作时可在同一巷道对面货架寻找空位。
-\end{assumption}
-
-\begin{assumption}
-所有货位规格一致，每个货位仅存放一箱。订单不可拆分或合并。
-\end{assumption}
-
-\begin{assumption}
-货架列间距 $d_{\text{col}}=0.5$m，层高按题目给定值：1-8层200mm、9-42层400mm、43-50层500mm。
-\end{assumption}
-
-% ──────────── 4. 符号说明 ────────────
+% ═══════════════ 5. 符号说明 ═══════════════
+% 【规则】
+% - 三线表
+% - 不用float环境（[H]固定），确保紧跟假设之后
 \section{符号说明}
-本文所用主要符号及其含义如表~\ref{tab:symbols}~所示。
-
-\begin{table}[htbp]
-  \centering\small
-  \caption{主要符号表}
-  \label{tab:symbols}
-  \begin{tabular}{cll}
-  \toprule
-  \headcol 符号 & 含义 & 单位/量纲 \\
-  \midrule
-  $x_i$    & （变量含义）   & （单位） \\
-  $\alpha$ & （参数含义）   & 无量纲 \\
-  \bottomrule
-  \end{tabular}
+\begin{table}[H]
+\centering
+\caption{符号说明}
+\label{tab:symbols}
+\begin{tabular}{cll}
+\toprule
+符号 & 含义 & 单位 \\
+\midrule
+\end{tabular}
 \end{table}
 
-% ──────────── 5. 模型的建立与求解 ────────────
+% ═══════════════ 6. 模型的建立与求解 ═══════════════
+% 【规则】
+% - 8节国赛结构中的核心节（20-22页）
+% - 每个问题必须有3个子节：模型建立→算法设计→结果分析
+% - 每个子节前加\FloatBarrier防止图表跨子节
+% - 子问题间必须有过渡句解释"为什么需要下一个问题"
 \section{模型的建立与求解}
 
 \subsection{数据预处理}
-（数据清洗、归一化、缺失值处理、特征提取等。展示关键统计表。）
+% 1页：统计表+箱型分布
 
-\subsection{问题一：模型建立与求解}
+% ═══ 问题一 ═══
+\subsection{问题一：XX优化}
 
-\subsubsection{数学模型}
-（符号定义表 + 目标函数 + 约束条件 + 推导链。每个公式有编号。）
+\FloatBarrier\subsubsection{模型建立}
+% 【内容】
+% - 决策变量定义
+% - 目标函数（编号公式）
+% - 约束条件逐条：命名(\emph{约束名}) + 编号公式 + 物理解释（硬/紧/松/软）
+% - 可用\textbf{1.}\textbf{2.}\textbf{3.}分子节
 
-\begin{equation}
-    \min_{x} \quad f(x) = \sum_{i=1}^{n} w_i x_i
-    \label{eq:obj1}
-\end{equation}
+\FloatBarrier\subsubsection{算法设计}
+% 【格式】
+% - 三线表伪代码
+% - \begin{table}[htbp] \centering\footnotesize
+% - \begin{tabular}{p{0.75\textwidth}}
+% - Algorithm N: Title
+% - Input:/Output: 行
+% - 最后一行含时间复杂度
+% - 表后有文字解释（≥1段）
 
-\begin{equation}
-    \text{s.t.} \quad
-    \begin{cases}
-        g_i(x) \leq 0, & i = 1, \ldots, m \\
-        h_j(x) = 0,    & j = 1, \ldots, p
-    \end{cases}
-    \label{eq:constraint1}
-\end{equation}
+\FloatBarrier\subsubsection{求解结果与分析}
+% 【内容】
+% - 数值结果表（三线表[htbp]）
+% - 图表（≥1张，[htbp]浮动）
+% - ≥100字图分析：展示什么+关键发现+物理/工程含义
+% - 与前问对比
 
-\subsubsection{算法设计}
-（算法伪代码，≥4步，含复杂度分析 $O(N\log N)$。）
-\begin{enumerate}[(1)]
-  \item 步骤一
-  \item 步骤二
-  \item 步骤三
-  \item 步骤四
-\end{enumerate}
+% ═══ 问题二-五（结构同上） ═══
+% 每两个问题之间必须有过渡段。禁用"节末核心发现"和"综上"。
 
-\subsubsection{求解结果与分析}
-（数值结果表 + 图 + ≥100字分析。）
-
-\begin{table}[htbp]
-\centering\small
-\caption{求解结果}
-\label{tab:result1}
-\begin{tabular}{cccc}
-\toprule \headcol 指标 & 数值 & 单位 & 说明 \\
-\midrule （指标名） & （数值） & （单位） & （说明） \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-% ──────────── 6. 灵敏度分析 ────────────
+% ═══════════════ 7. 灵敏度分析 ═══════════════
+% 【规则】
+% - 含单参数扰动表+联合扰动+机理分析
+% - 模型检验作为子节
 \section{灵敏度分析}
 
-选取≥3个关键参数，各扰动 $\pm 10\%$、$\pm 20\%$。结果如表~\ref{tab:sensitivity}~所示。
-
-\begin{table}[htbp]
-\centering\small
-\caption{灵敏度分析结果}
-\label{tab:sensitivity}
-\begin{tabular}{lccccc}
-\toprule \headcol 参数 & $-20\%$ & $-10\%$ & 基准 & $+10\%$ & $+20\%$ \\
-\midrule $\alpha$ & （值） & （值） & （值） & （值） & （值） \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-% ──────────── 7. 模型评价与推广 ────────────
+% ═══════════════ 8. 模型评价与推广 ═══════════════
+% 【规则】
+% - 含：问题递进关系→GA差异分析→线性速度适用范围→约束可行性验证→优缺点→推广
+% - 劣势要与假设呼应
+% - 禁用："模型有优点也有缺点"、"本文模型还比较粗糙"
 \section{模型评价与推广}
-\subsection{模型优点}
-\begin{enumerate}
-  \item 优点一。\item 优点二。\item 优点三。\item 优点四。
-\end{enumerate}
-\subsection{模型缺点}
-\begin{enumerate}
-  \item 局限一。\item 局限二。\item 局限三。\item 局限四。
-\end{enumerate}
-\subsection{模型推广}
-（提出1~2个可行的模型改进方向，说明如何推广至更一般的场景。）
 
-% ──────────── 8. 结论 ────────────
+% ═══════════════ 9. 结论 ═══════════════
+% 【规则】
+% - ≥5条编号总结（\begin{enumerate}）
+% - 含数值汇总表
+% - 最后一句概括全部工作
 \section{结论}
-（≥5条编号总结，含具体数值。）
 
-% ──────────── 参考文献 ────────────
-\newpage
-\begin{thebibliography}{99}
-\addcontentsline{toc}{section}{参考文献}
-\bibitem{1} 作者. 论文标题 [J]. 期刊名, 年份.
-\bibitem{2}
-\end{thebibliography}
+% ═══════════════ 10. 参考文献 ═══════════════
+% 【规则】
+% - ≥10篇，格式统一
+\bibliographystyle{...}
+\bibliography{ref.bib}
 
-% ──────────── 附录 ────────────
-\newpage
+% ═══════════════ 11. 附录 ═══════════════
+% 【规则】
+% - 每问核心代码各一个listing
+% - 代码必须与正文算法一致
 \begin{appendices}
-\section*{}
-\textbf{核心代码节选}
-\begin{lstlisting}[style=pythonstyle, caption={核心算法}]
-# 代码示例
-\end{lstlisting}
+\textbf{程序一：}...
 \end{appendices}
 
 \end{document}
