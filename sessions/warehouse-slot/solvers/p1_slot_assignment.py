@@ -164,6 +164,12 @@ def greedy_assignment_cell(df_inv, df_slots, df_cells):
     process_type('E3', ['E3', 'E4'])
     process_type('E1', ['E1', 'E3', 'E4'])
 
+    # 检查分配完整性
+    total_assigned = sum(len(v) for v in assignment.values())
+    total_expected = int(df_inv['库存数量/箱'].sum())
+    if total_assigned != total_expected:
+        print(f"  ⚠ 警告：已分配{total_assigned}箱，预期{total_expected}箱，差额{total_expected - total_assigned}")
+
     # 计算E[T]（含深位惩罚）
     expected_time = 0.0
     for _, row in df_inv.iterrows():
@@ -302,9 +308,10 @@ def ga_optimize(df_inv, df_slots, df_cells, n_gen=60, pop_size=30):
                 arr[i], arr[j] = arr[j], arr[i]
         return new
 
-    # 种群
-    pop = []
-    for _ in range(pop_size):
+    # 种群（将原始贪心解作为第一个个体加入）
+    pop = [(base_orders, baseline_et)]  # 基线个体
+    history.append(baseline_et)
+    for _ in range(pop_size - 1):
         orders = perturb_orders(base_orders)
         et = evaluate(orders)
         pop.append((orders, et))
